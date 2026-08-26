@@ -8,7 +8,8 @@ extends SceneTree
 const ARRIVE_TOLERANCE := 2.0
 
 const HOME := Vector3(-12, 0, -16)
-const WORKSITE := Vector3(18, 0, 2)
+const SOURCE := Vector3(18, 0, 2)
+const STORE := Vector3(-4, 0, -8)
 const REST := Vector3(2, 0, 18)
 
 var _failures := PackedStringArray()
@@ -37,28 +38,31 @@ func _run() -> void:
 		return
 	_check(villager.villager_id == "VIL_TEST_001", "T1 id is VIL_TEST_001")
 	_check(villager.display_name == "Mara", "T1 name is Mara")
-	_check(villager.job == "Builder", "T1 job is Builder")
+	_check(villager.job == "Forager", "T1 job is Forager")
 	_check(villager.get_selection_type() == "villager", "T1 selection type is villager")
 	_check(villager.get_state_name() == "AT_HOME", "T1 starts AT_HOME")
 
 	# T2: three complete routine loops with real arrivals + obstacle routing.
-	# Home->Worksite passes straight through Rock1 at (8,-4): track clearance.
+	# Source->Store passes straight through Rock1 at (8,-4): track clearance.
 	var loops_done := 0
 	var min_rock1_dist := 1e9
 	var arrivals_ok := true
 	var ticks := 0
 	var last_state := villager.get_state_name()
-	while loops_done < 3 and ticks < 30000:
+	while loops_done < 3 and ticks < 40000:
 		await physics_frame
 		ticks += 1
 		var s := villager.get_state_name()
-		if s == "GOING_TO_WORK":
+		if s == "GOING_TO_STORE":
 			var d := Vector2(villager.global_position.x - 8.0, villager.global_position.z + 4.0).length()
 			min_rock1_dist = minf(min_rock1_dist, d)
 		if s != last_state:
 			match s:
-				"WORKING":
-					if _flat_dist(villager.global_position, WORKSITE) > ARRIVE_TOLERANCE:
+				"GATHERING":
+					if _flat_dist(villager.global_position, SOURCE) > ARRIVE_TOLERANCE:
+						arrivals_ok = false
+				"DEPOSITING":
+					if _flat_dist(villager.global_position, STORE) > ARRIVE_TOLERANCE:
 						arrivals_ok = false
 				"RESTING":
 					if _flat_dist(villager.global_position, REST) > ARRIVE_TOLERANCE:
@@ -70,7 +74,7 @@ func _run() -> void:
 			last_state = s
 	_check(loops_done == 3, "T2 completed 3 full routine loops (%d in %d ticks)" % [loops_done, ticks])
 	_check(arrivals_ok, "T2 every station reached within %.1f m of its anchor" % ARRIVE_TOLERANCE)
-	_check(min_rock1_dist > 1.9, "T2 routes around Rock1 on work leg (min dist %.2f m)" % min_rock1_dist)
+	_check(min_rock1_dist > 1.9, "T2 routes around Rock1 on store leg (min dist %.2f m)" % min_rock1_dist)
 
 	# T3: generic selection transfer + ring ownership.
 	var p_ring := primalis.get_node("Selection/SelectionRing") as MeshInstance3D

@@ -44,6 +44,10 @@ height = 0.62
 material = ExtResource("6")
 size = Vector3(0.1, 0.07, 0.22)
 
+[sub_resource type="BoxMesh" id="mesh_basket"]
+material = ExtResource("6")
+size = Vector3(0.26, 0.16, 0.2)
+
 [sub_resource type="TorusMesh" id="mesh_ring"]
 material = ExtResource("7")
 inner_radius = 0.45
@@ -114,6 +118,11 @@ mesh = SubResource("mesh_foot")
 [node name="FootR" type="MeshInstance3D" parent="Visual"]
 position = Vector3(-0.1, 0.05, -0.03)
 mesh = SubResource("mesh_foot")
+
+[node name="CarryBasket" type="MeshInstance3D" parent="Visual"]
+position = Vector3(0, 1.05, -0.3)
+visible = false
+mesh = SubResource("mesh_basket")
 
 [node name="Selection" type="Node3D" parent="."]
 script = ExtResource("3")

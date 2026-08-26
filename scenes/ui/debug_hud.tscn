@@ -16,6 +16,14 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 
-[node name="InfoLabel" type="Label" parent="Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+theme_override_constants/separation = 6
+
+[node name="InfoLabel" type="Label" parent="Panel/Margin/VBox"]
 theme_override_font_sizes/font_size = 14
-text = "PRIMALIS - STEP 2"
+text = "PRIMALIS - STEP 5"
+
+[node name="FeedButton" type="Button" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "FEED PRIMALIS - 3 FOOD"

@@ -9,6 +9,7 @@
 [ext_resource type="Material" path="res://assets/materials/tree_canopy_deep.tres" id="7"]
 [ext_resource type="Material" path="res://assets/materials/tree_canopy_dark.tres" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/villagers/villager_placeholder.tscn" id="9"]
+[ext_resource type="Script" path="res://scripts/settlement/food_source.gd" id="10"]
 
 [sub_resource type="NavigationMesh" id="navmesh"]
 geometry_parsed_geometry_type = 1
@@ -91,6 +92,42 @@ height = 3.8
 material = ExtResource("8")
 radius = 1.6
 height = 3.2
+
+[sub_resource type="CylinderMesh" id="mesh_bush_stem"]
+material = ExtResource("6")
+top_radius = 0.08
+bottom_radius = 0.1
+height = 0.5
+
+[sub_resource type="SphereMesh" id="mesh_bush"]
+material = ExtResource("7")
+radius = 0.55
+height = 1.1
+
+[sub_resource type="BoxMesh" id="mesh_crate"]
+material = ExtResource("6")
+size = Vector3(0.7, 0.5, 0.7)
+
+[sub_resource type="SphereMesh" id="mesh_sack"]
+material = ExtResource("5")
+radius = 0.35
+height = 0.5
+
+[sub_resource type="BoxMesh" id="mesh_store_platform"]
+material = ExtResource("6")
+size = Vector3(2.4, 0.1, 2.4)
+
+[sub_resource type="BoxMesh" id="mesh_trough_side"]
+material = ExtResource("6")
+size = Vector3(3.6, 0.7, 0.25)
+
+[sub_resource type="BoxMesh" id="mesh_trough_base"]
+material = ExtResource("4")
+size = Vector3(3.8, 0.3, 1.4)
+
+[sub_resource type="BoxMesh" id="mesh_trough_fill"]
+material = ExtResource("7")
+size = Vector3(3.3, 0.25, 0.9)
 
 [sub_resource type="ProceduralSkyMaterial" id="skymat"]
 sky_top_color = Color(0.33, 0.45, 0.62, 1)
@@ -447,34 +484,110 @@ font_size = 48
 outline_size = 16
 pixel_size = 0.02
 
-[node name="VillagerWorksite" type="Node3D" parent="Anchors"]
+[node name="FoodSource" type="Node3D" parent="Anchors" groups=["food_source"]]
 position = Vector3(18, 0, 2)
+script = ExtResource("10")
 
-[node name="Log1" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
-position = Vector3(1.2, 0.16, 0.2)
-rotation = Vector3(0, 0.3, 1.5708)
-mesh = SubResource("mesh_work_log")
+[node name="Bush1" type="Node3D" parent="Anchors/FoodSource"]
+position = Vector3(1.1, 0, 0.3)
 
-[node name="Log2" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
-position = Vector3(1.25, 0.45, 0.25)
-rotation = Vector3(0, 0.55, 1.5708)
-mesh = SubResource("mesh_work_log")
+[node name="Stem" type="MeshInstance3D" parent="Anchors/FoodSource/Bush1"]
+position = Vector3(0, 0.25, 0)
+mesh = SubResource("mesh_bush_stem")
 
-[node name="Block1" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
-position = Vector3(0.9, 0.25, -1.1)
-rotation = Vector3(0, 0.4, 0)
-mesh = SubResource("mesh_work_block")
+[node name="Leaves" type="MeshInstance3D" parent="Anchors/FoodSource/Bush1"]
+position = Vector3(0, 0.75, 0)
+mesh = SubResource("mesh_bush")
 
-[node name="Block2" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
-position = Vector3(0.9, 0.75, -1.05)
-rotation = Vector3(0, 0.15, 0)
-mesh = SubResource("mesh_work_block")
+[node name="Bush2" type="Node3D" parent="Anchors/FoodSource"]
+position = Vector3(-0.4, 0, 1.2)
 
-[node name="Label" type="Label3D" parent="Anchors/VillagerWorksite"]
+[node name="Stem" type="MeshInstance3D" parent="Anchors/FoodSource/Bush2"]
+position = Vector3(0, 0.25, 0)
+mesh = SubResource("mesh_bush_stem")
+
+[node name="Leaves" type="MeshInstance3D" parent="Anchors/FoodSource/Bush2"]
+position = Vector3(0, 0.75, 0)
+mesh = SubResource("mesh_bush")
+
+[node name="Bush3" type="Node3D" parent="Anchors/FoodSource"]
+position = Vector3(0.2, 0, -1.0)
+
+[node name="Stem" type="MeshInstance3D" parent="Anchors/FoodSource/Bush3"]
+position = Vector3(0, 0.25, 0)
+mesh = SubResource("mesh_bush_stem")
+
+[node name="Leaves" type="MeshInstance3D" parent="Anchors/FoodSource/Bush3"]
+position = Vector3(0, 0.75, 0)
+mesh = SubResource("mesh_bush")
+
+[node name="Label" type="Label3D" parent="Anchors/FoodSource"]
 position = Vector3(0, 2.3, 0)
 billboard = 1
 modulate = Color(1, 1, 1, 0.75)
-text = "WORKSITE"
+text = "WILD FOOD"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="FoodStore" type="Node3D" parent="Anchors"]
+position = Vector3(-4, 0, -8)
+
+[node name="Platform" type="MeshInstance3D" parent="Anchors/FoodStore"]
+position = Vector3(0, 0.05, 0)
+mesh = SubResource("mesh_store_platform")
+
+[node name="Crate1" type="MeshInstance3D" parent="Anchors/FoodStore"]
+position = Vector3(0.55, 0.35, 0.4)
+rotation = Vector3(0, 0.3, 0)
+mesh = SubResource("mesh_crate")
+
+[node name="Crate2" type="MeshInstance3D" parent="Anchors/FoodStore"]
+position = Vector3(-0.5, 0.35, -0.45)
+rotation = Vector3(0, -0.2, 0)
+mesh = SubResource("mesh_crate")
+
+[node name="Sack" type="MeshInstance3D" parent="Anchors/FoodStore"]
+position = Vector3(-0.55, 0.3, 0.55)
+mesh = SubResource("mesh_sack")
+
+[node name="Label" type="Label3D" parent="Anchors/FoodStore"]
+position = Vector3(0, 2.3, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "FOOD STORE"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="FeedingSpot" type="Node3D" parent="Anchors"]
+position = Vector3(-2, 0, 10)
+
+[node name="TroughBase" type="MeshInstance3D" parent="Anchors/FeedingSpot"]
+position = Vector3(0, 0.15, 0)
+rotation = Vector3(0, 0.4, 0)
+mesh = SubResource("mesh_trough_base")
+
+[node name="TroughSideA" type="MeshInstance3D" parent="Anchors/FeedingSpot"]
+position = Vector3(-0.22, 0.55, -0.51)
+rotation = Vector3(0.12, 0.4, 0)
+mesh = SubResource("mesh_trough_side")
+
+[node name="TroughSideB" type="MeshInstance3D" parent="Anchors/FeedingSpot"]
+position = Vector3(0.22, 0.55, 0.51)
+rotation = Vector3(-0.12, 0.4, 0)
+mesh = SubResource("mesh_trough_side")
+
+[node name="TroughFill" type="MeshInstance3D" parent="Anchors/FeedingSpot"]
+position = Vector3(0, 0.42, 0)
+rotation = Vector3(0, 0.4, 0)
+mesh = SubResource("mesh_trough_fill")
+
+[node name="Label" type="Label3D" parent="Anchors/FeedingSpot"]
+position = Vector3(0, 2.6, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "FEEDING SPOT"
 font_size = 48
 outline_size = 16
 pixel_size = 0.02
@@ -509,5 +622,6 @@ pixel_size = 0.02
 [node name="Villager" parent="." instance=ExtResource("9")]
 position = Vector3(-12, 0.3, -16)
 home_path = NodePath("../Anchors/VillagerHome")
-worksite_path = NodePath("../Anchors/VillagerWorksite")
+source_path = NodePath("../Anchors/FoodSource")
+store_path = NodePath("../Anchors/FoodStore")
 rest_point_path = NodePath("../Anchors/VillagerRestPoint")

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/primalis/primalis_controller.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/primalis/primalis_selection.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/primalis/primalis_hunger.gd" id="8"]
 [ext_resource type="Material" path="res://assets/materials/primalis_body.tres" id="3"]
 [ext_resource type="Material" path="res://assets/materials/primalis_stone.tres" id="4"]
 [ext_resource type="Material" path="res://assets/materials/primalis_eye.tres" id="5"]
@@ -99,6 +100,9 @@ script = ExtResource("1")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 position = Vector3(0, 0.8, 0)
 shape = SubResource("col_capsule")
+
+[node name="Hunger" type="Node" parent="."]
+script = ExtResource("8")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 path_desired_distance = 0.6

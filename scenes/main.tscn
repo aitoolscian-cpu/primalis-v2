@@ -8,6 +8,8 @@
 [ext_resource type="Material" path="res://assets/materials/command_marker.tres" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/primalis/primalis_third_person_camera.tscn" id="7"]
 [ext_resource type="Script" path="res://scripts/core/control_mode_manager.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/settlement/settlement_resources.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/settlement/feeding_service.gd" id="10"]
 
 [sub_resource type="TorusMesh" id="mesh_marker"]
 material = ExtResource("6")
@@ -38,5 +40,12 @@ script = ExtResource("8")
 rts_camera_path = NodePath("../RTSCamera")
 selection_manager_path = NodePath("../SelectionManager")
 third_person_camera_path = NodePath("../ThirdPersonCamera")
+
+[node name="SettlementResources" type="Node" parent="." groups=["settlement_resources"]]
+script = ExtResource("9")
+
+[node name="FeedingService" type="Node" parent="." groups=["feeding_service"]]
+script = ExtResource("10")
+feeding_spot_path = NodePath("../TestWorld/Anchors/FeedingSpot")
 
 [node name="DebugHUD" parent="." instance=ExtResource("3")]

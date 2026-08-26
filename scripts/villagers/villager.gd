@@ -9,11 +9,12 @@ const PROXIMITY_LOOK_RANGE := 6.0
 @export_group("Identity")
 @export var villager_id := "VIL_TEST_001"
 @export var display_name := "Mara"  # [TESTING] placeholder identity, not canon.
-@export var job := "Builder"
+@export var job := "Forager"
 
 @export_group("Activity Anchors")
 @export var home_path: NodePath
-@export var worksite_path: NodePath
+@export var source_path: NodePath
+@export var store_path: NodePath
 @export var rest_point_path: NodePath
 
 @export_group("Movement")
@@ -24,6 +25,8 @@ const PROXIMITY_LOOK_RANGE := 6.0
 @export var slow_radius := 1.5
 @export var gravity := 9.8
 
+var carried_food := 0
+
 var _bob_time := 0.0
 var _working_motion := false
 var _primalis: Node3D = null
@@ -31,6 +34,7 @@ var _primalis: Node3D = null
 @onready var _agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _selection: PrimalisSelection = $Selection
 @onready var _visual: Node3D = $Visual
+@onready var _carry_prop: MeshInstance3D = $Visual/CarryBasket
 @onready var _ai: VillagerAI = $AI
 
 func _ready() -> void:
@@ -45,6 +49,10 @@ func is_travel_finished() -> bool:
 
 func set_working_motion(on: bool) -> void:
 	_working_motion = on
+
+func set_carried_food(amount: int) -> void:
+	carried_food = clampi(amount, 0, 1)
+	_carry_prop.visible = carried_food > 0
 
 ## --- Selection contract (shared with PrimalisController) ---
 func set_selected(selected: bool) -> void:
