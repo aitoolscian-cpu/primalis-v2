@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/debug_hud.gd" id="1"]
+
+[node name="DebugHUD" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+self_modulate = Color(1, 1, 1, 0.85)
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="InfoLabel" type="Label" parent="Panel/Margin"]
+theme_override_font_sizes/font_size = 14
+text = "PRIMALIS - STEP 2"

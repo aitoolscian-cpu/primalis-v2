@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/rts/rts_camera_controller.gd" id="1"]
+
+[node name="RTSCamera" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Pitch" type="Node3D" parent="."]
+rotation = Vector3(-0.872665, 0, 0)
+
+[node name="Camera" type="Camera3D" parent="Pitch"]
+position = Vector3(0, 0, 32)
+fov = 55.0
+far = 500.0
