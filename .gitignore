@@ -1,0 +1,14 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Nested tooling repo (godot-mcp has its own .git and node_modules)
+/godot-mcp/
+
+# Salesforce CLI scratch folder, unrelated to Primalis
+/.sf/
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
