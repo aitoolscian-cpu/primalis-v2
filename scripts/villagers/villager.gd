@@ -1,21 +1,28 @@
 class_name Villager
 extends CharacterBody3D
 ## Placeholder autonomous villager. Identity + physical movement live here;
-## the routine state machine lives in the child VillagerAI node.
+## the job/routine state machine lives in the child VillagerAI node.
 ## Villagers are selectable and inspectable but NOT player-commandable.
+## One reusable scene: per-instance identity, job, tunic color, offsets.
+
+enum Job { FORAGER, BUILDER }
 
 const PROXIMITY_LOOK_RANGE := 6.0
 
 @export_group("Identity")
 @export var villager_id := "VIL_TEST_001"
 @export var display_name := "Mara"  # [TESTING] placeholder identity, not canon.
-@export var job := "Forager"
+@export var job: Job = Job.FORAGER
+@export var tunic_color := Color(0.541, 0.404, 0.247)  # default: soil brown
+## Small deterministic offset applied at stations so villagers don't stack.
+@export var station_offset := Vector3.ZERO
 
 @export_group("Activity Anchors")
 @export var home_path: NodePath
 @export var source_path: NodePath
 @export var store_path: NodePath
 @export var rest_point_path: NodePath
+@export var den_path: NodePath
 
 @export_group("Movement")
 @export var max_speed := 2.2
@@ -39,10 +46,19 @@ var _primalis: Node3D = null
 
 func _ready() -> void:
 	_primalis = get_tree().get_first_node_in_group("primalis") as Node3D
+	_apply_tunic_color()
+
+func _apply_tunic_color() -> void:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = tunic_color
+	mat.roughness = 1.0
+	for part in ["Torso", "ArmL", "ArmR"]:
+		var mesh := _visual.get_node(part) as MeshInstance3D
+		mesh.set_surface_override_material(0, mat)
 
 func move_to(target: Vector3) -> void:
 	var map: RID = get_world_3d().navigation_map
-	_agent.target_position = NavigationServer3D.map_get_closest_point(map, target)
+	_agent.target_position = NavigationServer3D.map_get_closest_point(map, target + station_offset)
 
 func is_travel_finished() -> bool:
 	return _agent.is_navigation_finished()
@@ -53,6 +69,17 @@ func set_working_motion(on: bool) -> void:
 func set_carried_food(amount: int) -> void:
 	carried_food = clampi(amount, 0, 1)
 	_carry_prop.visible = carried_food > 0
+
+## Player job assignment. The job label switches immediately; behavior may
+## pass through a conservation-safe transition (FINISHING_DELIVERY) first.
+func assign_job(new_job: Job) -> void:
+	if new_job == job:
+		return
+	job = new_job
+	_ai.on_job_changed(new_job)
+
+func get_job_name() -> String:
+	return Job.keys()[job]
 
 ## --- Selection contract (shared with PrimalisController) ---
 func set_selected(selected: bool) -> void:
@@ -106,7 +133,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = horizontal.z
 	move_and_slide()
 
-## Tiny cosmetic behaviour while standing: a work lean at the worksite, and
+## Tiny cosmetic behaviour while standing: a work lean at stations, and
 ## turning to watch Primalis when he is close. No animation architecture.
 func _stationary_motion(delta: float) -> void:
 	if _working_motion:

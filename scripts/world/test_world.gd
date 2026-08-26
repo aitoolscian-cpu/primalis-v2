@@ -6,3 +6,9 @@ extends Node3D
 
 func _ready() -> void:
 	_nav_region.bake_navigation_mesh(false)
+	# Den gameplay effect: completed shelter slows Primalis hunger growth 10%.
+	var den := $Anchors/DenSite as ConstructionProject
+	var primalis := $Primalis as PrimalisController
+	if den != null and primalis != null:
+		den.completed.connect(func() -> void:
+			primalis.get_hunger_node().apply_shelter_bonus(0.9))

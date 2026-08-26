@@ -38,7 +38,7 @@ func _run() -> void:
 		return
 	_check(villager.villager_id == "VIL_TEST_001", "T1 id is VIL_TEST_001")
 	_check(villager.display_name == "Mara", "T1 name is Mara")
-	_check(villager.job == "Forager", "T1 job is Forager")
+	_check(villager.get_job_name() == "FORAGER", "T1 job is FORAGER")
 	_check(villager.get_selection_type() == "villager", "T1 selection type is villager")
 	_check(villager.get_state_name() == "AT_HOME", "T1 starts AT_HOME")
 

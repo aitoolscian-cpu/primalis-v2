@@ -35,6 +35,12 @@ func _run() -> void:
 	_resources = get_first_node_in_group("settlement_resources") as SettlementResources
 	_feeding = get_first_node_in_group("feeding_service") as FeedingService
 	_source = get_first_node_in_group("food_source") as FoodSource
+	# Step 6 evolution: multiple villagers exist. Keep Step 5's economics
+	# exact by making Mara the sole Forager for this suite.
+	var population := get_first_node_in_group("population_manager") as PopulationManager
+	for v in get_nodes_in_group("villager"):
+		if v != _villager:
+			population.assign_job(v as Villager, Villager.Job.BUILDER)
 	_initial_total = _source.get_remaining() + _resources.get_food()
 
 	# T1: resource manager basics.
@@ -93,7 +99,7 @@ func _run() -> void:
 	for i in 300:
 		await physics_frame
 	var game_secs := (Engine.get_physics_frames() - f0) * Engine.time_scale / 60.0
-	var expected := game_secs * hunger_node.rate_per_second
+	var expected := game_secs * hunger_node.get_effective_rate()
 	var gained := hunger_node.hunger - 30.0
 	_check(absf(gained - expected) < 0.5, "T4 hunger rate: %.2f over %.1f game-s (expected %.2f)" % [gained, game_secs, expected])
 	_manager.select(_primalis)

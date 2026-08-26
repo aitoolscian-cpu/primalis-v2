@@ -10,6 +10,8 @@
 [ext_resource type="Material" path="res://assets/materials/tree_canopy_dark.tres" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/villagers/villager_placeholder.tscn" id="9"]
 [ext_resource type="Script" path="res://scripts/settlement/food_source.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/settlement/construction_project.gd" id="11"]
+[ext_resource type="PackedScene" path="res://assets/Meshy Assets/PrimalisDen1.glb" id="12"]
 
 [sub_resource type="NavigationMesh" id="navmesh"]
 geometry_parsed_geometry_type = 1
@@ -619,9 +621,83 @@ font_size = 48
 outline_size = 16
 pixel_size = 0.02
 
+[node name="DenSite" type="Node3D" parent="Anchors" groups=["construction_project"]]
+position = Vector3(-10, 0, 16)
+script = ExtResource("11")
+
+[node name="Foundation" type="Node3D" parent="Anchors/DenSite"]
+
+[node name="CompleteDen" type="Node3D" parent="Anchors/DenSite"]
+visible = false
+
+[node name="PrimalisDen" parent="Anchors/DenSite/CompleteDen" instance=ExtResource("12")]
+position = Vector3(0, 1.336, 0)
+scale = Vector3(3, 3, 3)
+
+[node name="Frame" type="Node3D" parent="Anchors/DenSite"]
+visible = false
+
+[node name="Walls" type="Node3D" parent="Anchors/DenSite"]
+visible = false
+
+[node name="Roof" type="Node3D" parent="Anchors/DenSite"]
+visible = false
+
+[node name="Piles" type="Node3D" parent="Anchors/DenSite"]
+
+[node name="Label" type="Label3D" parent="Anchors/DenSite"]
+position = Vector3(0, 3.8, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.8)
+text = "PRIMALIS DEN 0%"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
 [node name="Villager" parent="." instance=ExtResource("9")]
 position = Vector3(-12, 0.3, -16)
+station_offset = Vector3(0.6, 0, 0.4)
 home_path = NodePath("../Anchors/VillagerHome")
 source_path = NodePath("../Anchors/FoodSource")
 store_path = NodePath("../Anchors/FoodStore")
 rest_point_path = NodePath("../Anchors/VillagerRestPoint")
+den_path = NodePath("../Anchors/DenSite")
+
+[node name="Villager2" parent="." instance=ExtResource("9")]
+position = Vector3(-10.5, 0.3, -15)
+villager_id = "VIL_TEST_002"
+display_name = "Tomas"
+job = 0
+tunic_color = Color(0.294, 0.337, 0.388, 1)
+station_offset = Vector3(-0.7, 0, 0.5)
+home_path = NodePath("../Anchors/VillagerHome")
+source_path = NodePath("../Anchors/FoodSource")
+store_path = NodePath("../Anchors/FoodStore")
+rest_point_path = NodePath("../Anchors/VillagerRestPoint")
+den_path = NodePath("../Anchors/DenSite")
+
+[node name="Villager3" parent="." instance=ExtResource("9")]
+position = Vector3(-13.5, 0.3, -15.2)
+villager_id = "VIL_TEST_003"
+display_name = "Elia"
+job = 1
+tunic_color = Color(0.333, 0.439, 0.29, 1)
+station_offset = Vector3(0.5, 0, -0.6)
+home_path = NodePath("../Anchors/VillagerHome")
+source_path = NodePath("../Anchors/FoodSource")
+store_path = NodePath("../Anchors/FoodStore")
+rest_point_path = NodePath("../Anchors/VillagerRestPoint")
+den_path = NodePath("../Anchors/DenSite")
+
+[node name="Villager4" parent="." instance=ExtResource("9")]
+position = Vector3(-11, 0.3, -17.2)
+villager_id = "VIL_TEST_004"
+display_name = "Bren"
+job = 1
+tunic_color = Color(0.463, 0.341, 0.239, 1)
+station_offset = Vector3(-0.5, 0, -0.5)
+home_path = NodePath("../Anchors/VillagerHome")
+source_path = NodePath("../Anchors/FoodSource")
+store_path = NodePath("../Anchors/FoodStore")
+rest_point_path = NodePath("../Anchors/VillagerRestPoint")
+den_path = NodePath("../Anchors/DenSite")

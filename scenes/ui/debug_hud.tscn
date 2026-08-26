@@ -27,3 +27,13 @@ text = "PRIMALIS - STEP 5"
 visible = false
 theme_override_font_sizes/font_size = 14
 text = "FEED PRIMALIS - 3 FOOD"
+
+[node name="AssignForagerButton" type="Button" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "ASSIGN FORAGER"
+
+[node name="AssignBuilderButton" type="Button" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "ASSIGN BUILDER"

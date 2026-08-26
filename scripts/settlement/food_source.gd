@@ -18,6 +18,12 @@ func get_remaining() -> int:
 func is_empty() -> bool:
 	return _stock <= 0
 
+## Test/debug helper: set remaining stock directly (callers must account
+## for the change in any conservation bookkeeping).
+func debug_set_stock(value: int) -> void:
+	_stock = maxi(value, 0)
+	stock_changed.emit(_stock)
+
 ## Removes exactly one unit. Returns false when the source is exhausted.
 func try_harvest() -> bool:
 	if _stock <= 0:

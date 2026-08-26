@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/core/control_mode_manager.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/settlement/settlement_resources.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/settlement/feeding_service.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/settlement/population_manager.gd" id="11"]
 
 [sub_resource type="TorusMesh" id="mesh_marker"]
 material = ExtResource("6")
@@ -43,6 +44,9 @@ third_person_camera_path = NodePath("../ThirdPersonCamera")
 
 [node name="SettlementResources" type="Node" parent="." groups=["settlement_resources"]]
 script = ExtResource("9")
+
+[node name="PopulationManager" type="Node" parent="." groups=["population_manager"]]
+script = ExtResource("11")
 
 [node name="FeedingService" type="Node" parent="." groups=["feeding_service"]]
 script = ExtResource("10")
