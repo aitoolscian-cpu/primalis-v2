@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="EventDefinition" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_definition.gd" id="1_definition"]
+[ext_resource type="Script" path="res://scripts/events/event_choice.gd" id="2_choice"]
+[ext_resource type="Script" path="res://scripts/events/event_condition.gd" id="3_condition"]
+[ext_resource type="Script" path="res://scripts/events/event_effect.gd" id="4_effect"]
+
+[sub_resource type="Resource" id="Condition_hidden"]
+script = ExtResource("3_condition")
+key = &"flags.primalis_revealed"
+comparison = 0
+value = false
+
+[sub_resource type="Resource" id="Choice_hide"]
+script = ExtResource("2_choice")
+choice_id = &"HIDE_PRIMALIS"
+label = "Keep him hidden (test)"
+description = "Test choice with no immediate gameplay mutation."
+
+[sub_resource type="Resource" id="Effect_reveal"]
+script = ExtResource("4_effect")
+target = &"flags.primalis_revealed"
+operation = 1
+value = true
+
+[sub_resource type="Resource" id="Choice_reveal"]
+script = ExtResource("2_choice")
+choice_id = &"REVEAL_PRIMALIS"
+label = "Reveal him (test)"
+description = "Test choice that emits a flag and schedules a follow-up."
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_reveal")])
+followup_event_id = &"EVT_TEST_OUTSIDERS_RETURN"
+followup_delay = 30.0
+
+[resource]
+script = ExtResource("1_definition")
+event_id = &"EVT_TEST_OUTSIDERS"
+title = "Outsiders arrive (test)"
+body_text = "Functional test event; not final narrative writing."
+tags = PackedStringArray("test", "outsiders")
+priority = 3
+conditions = Array[ExtResource("3_condition")]([SubResource("Condition_hidden")])
+choices = Array[ExtResource("2_choice")]([SubResource("Choice_hide"), SubResource("Choice_reveal")])
+participants = PackedStringArray("primalis", "outsiders")
+memory_tags = PackedStringArray("test_outsider_choice")

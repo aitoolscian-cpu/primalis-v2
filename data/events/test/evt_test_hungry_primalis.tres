@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="EventDefinition" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/events/event_definition.gd" id="1_definition"]
+[ext_resource type="Script" path="res://scripts/events/event_choice.gd" id="2_choice"]
+[ext_resource type="Script" path="res://scripts/events/event_condition.gd" id="3_condition"]
+[ext_resource type="Script" path="res://scripts/events/event_effect.gd" id="4_effect"]
+
+[sub_resource type="Resource" id="Condition_hungry"]
+script = ExtResource("3_condition")
+key = &"primalis.hunger"
+comparison = 3
+value = 60.0
+
+[sub_resource type="Resource" id="Effect_food"]
+script = ExtResource("4_effect")
+target = &"settlement.food"
+operation = 0
+value = -3
+
+[sub_resource type="Resource" id="Effect_hunger"]
+script = ExtResource("4_effect")
+target = &"primalis.hunger"
+operation = 0
+value = -40
+
+[sub_resource type="Resource" id="Choice_feed"]
+script = ExtResource("2_choice")
+choice_id = &"FEED_HIM"
+label = "Feed him (test)"
+description = "Test choice that emits food and hunger effects."
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_food"), SubResource("Effect_hunger")])
+
+[sub_resource type="Resource" id="Effect_bond"]
+script = ExtResource("4_effect")
+target = &"primalis.bond"
+operation = 0
+value = -2
+
+[sub_resource type="Resource" id="Choice_wait"]
+script = ExtResource("2_choice")
+choice_id = &"MAKE_HIM_WAIT"
+label = "Make him wait (test)"
+description = "Test choice that emits a declarative bond effect."
+effects = Array[ExtResource("4_effect")]([SubResource("Effect_bond")])
+
+[resource]
+script = ExtResource("1_definition")
+event_id = &"EVT_TEST_HUNGRY_PRIMALIS"
+title = "Hungry Primalis (test)"
+body_text = "Functional test event; not final narrative writing."
+tags = PackedStringArray("test", "primalis")
+priority = 5
+conditions = Array[ExtResource("3_condition")]([SubResource("Condition_hungry")])
+choices = Array[ExtResource("2_choice")]([SubResource("Choice_feed"), SubResource("Choice_wait")])
+participants = PackedStringArray("primalis")
+camera_focus_target_key = &"primalis"
+memory_tags = PackedStringArray("test_hunger_response")
