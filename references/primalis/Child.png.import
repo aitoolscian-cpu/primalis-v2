@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbdiyr376ifa6"
-path="res://.godot/imported/Adult.png-8137160ca4da45b44e02915bc23d7643.ctex"
+uid="uid://cgf5g0ijflg5x"
+path="res://.godot/imported/Child.png-1e795684ec53e8e32fc3ce0126b89759.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Images/Primalis/Adult.png"
-dest_files=["res://.godot/imported/Adult.png-8137160ca4da45b44e02915bc23d7643.ctex"]
+source_file="res://references/primalis/Child.png"
+dest_files=["res://.godot/imported/Child.png-1e795684ec53e8e32fc3ce0126b89759.ctex"]
 
 [params]
 

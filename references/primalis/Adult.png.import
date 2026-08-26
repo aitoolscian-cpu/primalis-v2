@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bk3bj74s3h40b"
-path="res://.godot/imported/Young Adult.png-c1278c3100137b23629a69a1fadb7f8a.ctex"
+uid="uid://dbdiyr376ifa6"
+path="res://.godot/imported/Adult.png-a842e4153f7bc914834f9599b1b057af.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Images/Primalis/Young Adult.png"
-dest_files=["res://.godot/imported/Young Adult.png-c1278c3100137b23629a69a1fadb7f8a.ctex"]
+source_file="res://references/primalis/Adult.png"
+dest_files=["res://.godot/imported/Adult.png-a842e4153f7bc914834f9599b1b057af.ctex"]
 
 [params]
 

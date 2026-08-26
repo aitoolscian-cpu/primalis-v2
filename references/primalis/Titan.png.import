@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dioqv204y8bda"
-path="res://.godot/imported/Titan.png-c2f615cff3875ca9c82070bba0bdcb9d.ctex"
+path="res://.godot/imported/Titan.png-04a56a8259cd51b8e83c175c5a9f9bae.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Images/Primalis/Titan.png"
-dest_files=["res://.godot/imported/Titan.png-c2f615cff3875ca9c82070bba0bdcb9d.ctex"]
+source_file="res://references/primalis/Titan.png"
+dest_files=["res://.godot/imported/Titan.png-04a56a8259cd51b8e83c175c5a9f9bae.ctex"]
 
 [params]
 
