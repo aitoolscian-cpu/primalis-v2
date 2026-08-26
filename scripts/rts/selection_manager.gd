@@ -19,6 +19,13 @@ func _ready() -> void:
 func has_selection() -> bool:
 	return is_instance_valid(_selected)
 
+func get_selected() -> PrimalisController:
+	return _selected
+
+## Suspend/resume RTS mouse gameplay (used while Primalis is possessed).
+func set_active(active: bool) -> void:
+	set_process_unhandled_input(active)
+
 func select(unit: PrimalisController) -> void:
 	_set_selected(unit)
 

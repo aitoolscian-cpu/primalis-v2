@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/rts/selection_manager.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/rts/command_marker.gd" id="5"]
 [ext_resource type="Material" path="res://assets/materials/command_marker.tres" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/primalis/primalis_third_person_camera.tscn" id="7"]
+[ext_resource type="Script" path="res://scripts/core/control_mode_manager.gd" id="8"]
 
 [sub_resource type="TorusMesh" id="mesh_marker"]
 material = ExtResource("6")
@@ -28,5 +30,13 @@ command_marker_path = NodePath("../CommandMarker")
 visible = false
 mesh = SubResource("mesh_marker")
 script = ExtResource("5")
+
+[node name="ThirdPersonCamera" parent="." instance=ExtResource("7")]
+
+[node name="ControlModeManager" type="Node" parent="." groups=["control_mode_manager"]]
+script = ExtResource("8")
+rts_camera_path = NodePath("../RTSCamera")
+selection_manager_path = NodePath("../SelectionManager")
+third_person_camera_path = NodePath("../ThirdPersonCamera")
 
 [node name="DebugHUD" parent="." instance=ExtResource("3")]

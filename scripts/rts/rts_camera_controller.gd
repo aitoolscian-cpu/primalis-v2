@@ -19,6 +19,21 @@ var _target_zoom := 32.0
 func _ready() -> void:
 	_target_zoom = clampf(_camera.position.z, zoom_min, zoom_max)
 
+## Enable/disable this rig's input processing. Yaw and zoom are preserved
+## while inactive; reactivating also reclaims the current camera.
+func set_active(active: bool) -> void:
+	set_process(active)
+	set_process_unhandled_input(active)
+	if active:
+		_camera.make_current()
+
+## Move the rig pivot to a world position (bounds-clamped), keeping yaw/zoom.
+func recenter_on(world_pos: Vector3) -> void:
+	position = Vector3(
+		clampf(world_pos.x, -bounds_half_extent, bounds_half_extent),
+		0.0,
+		clampf(world_pos.z, -bounds_half_extent, bounds_half_extent))
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("camera_zoom_in"):
 		_target_zoom = clampf(_target_zoom - zoom_step, zoom_min, zoom_max)

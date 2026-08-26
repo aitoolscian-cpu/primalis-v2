@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/primalis/primalis_third_person_camera.gd" id="1"]
+
+[node name="ThirdPersonCameraRig" type="Node3D"]
+script = ExtResource("1")
+
+[node name="YawPivot" type="Node3D" parent="."]
+position = Vector3(0, 1.25, 0)
+
+[node name="PitchPivot" type="Node3D" parent="YawPivot"]
+rotation = Vector3(-0.261799, 0, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="YawPivot/PitchPivot"]
+collision_mask = 1
+spring_length = 4.2
+margin = 0.25
+
+[node name="Camera" type="Camera3D" parent="YawPivot/PitchPivot/SpringArm3D"]
+fov = 60.0
+far = 500.0
