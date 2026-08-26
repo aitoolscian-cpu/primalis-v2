@@ -8,6 +8,7 @@
 [ext_resource type="Material" path="res://assets/materials/tree_trunk.tres" id="6"]
 [ext_resource type="Material" path="res://assets/materials/tree_canopy_deep.tres" id="7"]
 [ext_resource type="Material" path="res://assets/materials/tree_canopy_dark.tres" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/villagers/villager_placeholder.tscn" id="9"]
 
 [sub_resource type="NavigationMesh" id="navmesh"]
 geometry_parsed_geometry_type = 1
@@ -105,6 +106,36 @@ background_mode = 2
 sky = SubResource("sky")
 ambient_light_source = 3
 tonemap_mode = 2
+
+[sub_resource type="BoxMesh" id="mesh_home_platform"]
+material = ExtResource("6")
+size = Vector3(2.2, 0.08, 2.2)
+
+[sub_resource type="BoxMesh" id="mesh_home_post"]
+material = ExtResource("6")
+size = Vector3(0.12, 1.3, 0.12)
+
+[sub_resource type="BoxMesh" id="mesh_home_roof"]
+material = ExtResource("4")
+size = Vector3(2.4, 0.08, 1.3)
+
+[sub_resource type="CylinderMesh" id="mesh_work_log"]
+material = ExtResource("6")
+top_radius = 0.16
+bottom_radius = 0.16
+height = 1.6
+
+[sub_resource type="BoxMesh" id="mesh_work_block"]
+material = ExtResource("4")
+size = Vector3(0.5, 0.5, 0.5)
+
+[sub_resource type="BoxMesh" id="mesh_bench_seat"]
+material = ExtResource("6")
+size = Vector3(1.2, 0.08, 0.4)
+
+[sub_resource type="BoxMesh" id="mesh_bench_leg"]
+material = ExtResource("6")
+size = Vector3(0.12, 0.35, 0.3)
 
 [node name="TestWorld" type="Node3D"]
 script = ExtResource("1")
@@ -384,3 +415,99 @@ shadow_enabled = true
 
 [node name="Env" type="WorldEnvironment" parent="."]
 environment = SubResource("environment")
+
+[node name="Anchors" type="Node3D" parent="."]
+
+[node name="VillagerHome" type="Node3D" parent="Anchors"]
+position = Vector3(-12, 0, -16)
+
+[node name="Platform" type="MeshInstance3D" parent="Anchors/VillagerHome"]
+position = Vector3(0, 0.04, -1.4)
+mesh = SubResource("mesh_home_platform")
+
+[node name="PostL" type="MeshInstance3D" parent="Anchors/VillagerHome"]
+position = Vector3(0.95, 0.65, -2.3)
+mesh = SubResource("mesh_home_post")
+
+[node name="PostR" type="MeshInstance3D" parent="Anchors/VillagerHome"]
+position = Vector3(-0.95, 0.65, -2.3)
+mesh = SubResource("mesh_home_post")
+
+[node name="Roof" type="MeshInstance3D" parent="Anchors/VillagerHome"]
+position = Vector3(0, 1.32, -1.9)
+rotation = Vector3(0.12, 0, 0)
+mesh = SubResource("mesh_home_roof")
+
+[node name="Label" type="Label3D" parent="Anchors/VillagerHome"]
+position = Vector3(0, 2.3, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "HOME"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="VillagerWorksite" type="Node3D" parent="Anchors"]
+position = Vector3(18, 0, 2)
+
+[node name="Log1" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
+position = Vector3(1.2, 0.16, 0.2)
+rotation = Vector3(0, 0.3, 1.5708)
+mesh = SubResource("mesh_work_log")
+
+[node name="Log2" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
+position = Vector3(1.25, 0.45, 0.25)
+rotation = Vector3(0, 0.55, 1.5708)
+mesh = SubResource("mesh_work_log")
+
+[node name="Block1" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
+position = Vector3(0.9, 0.25, -1.1)
+rotation = Vector3(0, 0.4, 0)
+mesh = SubResource("mesh_work_block")
+
+[node name="Block2" type="MeshInstance3D" parent="Anchors/VillagerWorksite"]
+position = Vector3(0.9, 0.75, -1.05)
+rotation = Vector3(0, 0.15, 0)
+mesh = SubResource("mesh_work_block")
+
+[node name="Label" type="Label3D" parent="Anchors/VillagerWorksite"]
+position = Vector3(0, 2.3, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "WORKSITE"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="VillagerRestPoint" type="Node3D" parent="Anchors"]
+position = Vector3(2, 0, 18)
+
+[node name="Seat" type="MeshInstance3D" parent="Anchors/VillagerRestPoint"]
+position = Vector3(1.0, 0.38, 0)
+rotation = Vector3(0, 1.5708, 0)
+mesh = SubResource("mesh_bench_seat")
+
+[node name="BenchLegL" type="MeshInstance3D" parent="Anchors/VillagerRestPoint"]
+position = Vector3(1.0, 0.17, 0.45)
+rotation = Vector3(0, 1.5708, 0)
+mesh = SubResource("mesh_bench_leg")
+
+[node name="BenchLegR" type="MeshInstance3D" parent="Anchors/VillagerRestPoint"]
+position = Vector3(1.0, 0.17, -0.45)
+rotation = Vector3(0, 1.5708, 0)
+mesh = SubResource("mesh_bench_leg")
+
+[node name="Label" type="Label3D" parent="Anchors/VillagerRestPoint"]
+position = Vector3(0, 2.3, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "REST"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="Villager" parent="." instance=ExtResource("9")]
+position = Vector3(-12, 0.3, -16)
+home_path = NodePath("../Anchors/VillagerHome")
+worksite_path = NodePath("../Anchors/VillagerWorksite")
+rest_point_path = NodePath("../Anchors/VillagerRestPoint")

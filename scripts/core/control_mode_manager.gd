@@ -37,9 +37,12 @@ func get_control_name() -> String:
 
 func toggle_possession() -> void:
 	if mode == Mode.RTS:
-		if _selection == null or not _selection.has_selection():
-			return  # F with nothing selected is a safe no-op.
-		_possess(_selection.get_selected())
+		if _selection == null:
+			return
+		var selected := _selection.get_selected()
+		if selected is PrimalisController:
+			_possess(selected as PrimalisController)
+		# F with nothing (or a villager) selected is a safe no-op.
 	else:
 		_release()
 

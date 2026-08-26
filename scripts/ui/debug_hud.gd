@@ -1,5 +1,6 @@
 extends CanvasLayer
-## Minimal Step 3 debug readout. Finds its data sources by group.
+## Minimal Step 4 debug readout. Shows the currently selected entity:
+## Primalis panel (mode/control/state) or villager inspection panel.
 
 @onready var _info: Label = $Panel/Margin/InfoLabel
 
@@ -13,7 +14,27 @@ func _ready() -> void:
 	_mode_manager = get_tree().get_first_node_in_group("control_mode_manager") as ControlModeManager
 
 func _process(_delta: float) -> void:
-	var selected := _selection != null and _selection.has_selection()
+	var selected_unit: CharacterBody3D = null
+	if _selection != null:
+		selected_unit = _selection.get_selected()
+	if selected_unit is Villager:
+		_info.text = _villager_text(selected_unit as Villager)
+	else:
+		_info.text = _primalis_text(selected_unit != null)
+
+func _villager_text(villager: Villager) -> String:
+	return "PRIMALIS - STEP 4\nVILLAGER - TEST\nName: %s\nID: %s\nJob: %s\nState: %s\nDestination: %s\nPosition: %.1f, %.1f\nFPS: %d" % [
+		villager.display_name,
+		villager.villager_id,
+		villager.job,
+		villager.get_state_name(),
+		villager.get_destination_label(),
+		villager.global_position.x,
+		villager.global_position.z,
+		Engine.get_frames_per_second(),
+	]
+
+func _primalis_text(has_selected: bool) -> String:
 	var mode_name := "RTS"
 	var control_name := "COMMAND"
 	var hint := ""
@@ -22,7 +43,7 @@ func _process(_delta: float) -> void:
 		control_name = _mode_manager.get_control_name()
 		if _mode_manager.is_direct():
 			hint = "F - Return to RTS"
-		elif selected:
+		elif has_selected:
 			hint = "F - Possess Primalis"
 	var state_name := "?"
 	var speed := 0.0
@@ -33,10 +54,10 @@ func _process(_delta: float) -> void:
 		if _primalis.control_mode == PrimalisController.ControlMode.RTS_COMMAND \
 				and _primalis.state == PrimalisController.State.MOVING:
 			dest_line = "%.1f, %.1f" % [_primalis.destination.x, _primalis.destination.z]
-	var text := "PRIMALIS - STEP 3\nMode: %s\nControl: %s\nSelected: %s\nState: %s\nSpeed: %.1f m/s\nDestination: %s\nFPS: %d" % [
+	var text := "PRIMALIS - STEP 4\nMode: %s\nControl: %s\nSelected: %s\nState: %s\nSpeed: %.1f m/s\nDestination: %s\nFPS: %d" % [
 		mode_name,
 		control_name,
-		"YES" if selected else "NO",
+		"YES" if has_selected else "NO",
 		state_name,
 		speed,
 		dest_line,
@@ -44,4 +65,4 @@ func _process(_delta: float) -> void:
 	]
 	if hint != "":
 		text += "\n" + hint
-	_info.text = text
+	return text

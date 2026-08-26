@@ -60,6 +60,12 @@ func exit_direct_control() -> void:
 func set_selected(selected: bool) -> void:
 	_selection.set_selected(selected)
 
+func get_selection_name() -> String:
+	return "Primalis"
+
+func get_selection_type() -> String:
+	return "primalis"
+
 func get_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()
 

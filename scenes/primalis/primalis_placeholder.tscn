@@ -91,7 +91,7 @@ material = ExtResource("6")
 inner_radius = 0.8
 outer_radius = 1.0
 
-[node name="Primalis" type="CharacterBody3D" groups=["primalis"]]
+[node name="Primalis" type="CharacterBody3D" groups=["primalis", "selectable"]]
 collision_layer = 2
 collision_mask = 1
 script = ExtResource("1")
