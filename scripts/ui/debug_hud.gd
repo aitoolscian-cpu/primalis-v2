@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Compact Step 9B settlement/build catalog and entity inspection UI.
+## Compact Step 9C settlement/build catalog and entity inspection UI.
 
 @onready var _info: Label = $Panel/Margin/VBox/InfoLabel
 @onready var _feed_button: Button = $Panel/Margin/VBox/FeedButton
@@ -86,6 +86,10 @@ func _settlement_text() -> String:
 		woodcutters = _population.get_job_count(Villager.Job.WOODCUTTER)
 		builders = _population.get_job_count(Villager.Job.BUILDER)
 	var hungry := _population.get_hungry_count() if _population != null else 0
+	var feed_cost := _feeding.feed_cost if _feeding != null else 0
+	var primalis_consumed := _feeding.total_food_consumed if _feeding != null else 0
+	var villagers_consumed := _population.total_food_consumed_by_villagers \
+		if _population != null else 0
 	var housed := _housing.get_housed_count() if _housing != null else 0
 	var den_line := "-"
 	if _den != null:
@@ -101,8 +105,9 @@ func _settlement_text() -> String:
 	var active := _build.get_active_project() if _build != null else null
 	if active != null and active.building_id == BuildModeController.HOUSE_ID:
 		houses_line += " (%d%%)" % active.get_percent()
-	return "PRIMALIS - STEP 9B\nFOOD: %d  TIMBER: %d\nPOP: %d  HOUSED: %d / %d  HUNGRY: %d / %d\nWORK: F %d  W %d  B %d\nDEN: %s\nSTOREHOUSE: %s\nHOUSES: %s" % [
-		_food, _timber, population, housed, population, hungry, population,
+	return "PRIMALIS - STEP 9C\nFOOD: %d  TIMBER: %d\nFOOD DEMAND: PRIMALIS FEED = %d  HUNGRY VILLAGERS = %d\nCONSUMED: PRIMALIS %d  VILLAGERS %d\nPOP: %d  HOUSED: %d / %d  HUNGRY: %d / %d\nWORK: F %d  W %d  B %d\nDEN: %s\nSTOREHOUSE: %s\nHOUSES: %s" % [
+		_food, _timber, feed_cost, hungry, primalis_consumed, villagers_consumed,
+		population, housed, population, hungry, population,
 		foragers, woodcutters, builders, den_line, storehouse_line, houses_line]
 
 func _build_mode_text() -> String:
