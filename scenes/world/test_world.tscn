@@ -12,7 +12,6 @@
 [ext_resource type="Script" path="res://scripts/settlement/food_source.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/settlement/construction_project.gd" id="11"]
 [ext_resource type="Script" path="res://scripts/settlement/timber_source.gd" id="13"]
-[ext_resource type="PackedScene" path="res://assets/Meshy Assets/PrimalisDen1.glb" id="12"]
 
 [sub_resource type="NavigationMesh" id="navmesh"]
 geometry_parsed_geometry_type = 1
@@ -198,6 +197,30 @@ size = Vector3(1.2, 0.08, 0.4)
 [sub_resource type="BoxMesh" id="mesh_bench_leg"]
 material = ExtResource("6")
 size = Vector3(0.12, 0.35, 0.3)
+
+[sub_resource type="BoxMesh" id="mesh_den_floor"]
+material = ExtResource("4")
+size = Vector3(8, 0.5, 7)
+
+[sub_resource type="BoxMesh" id="mesh_den_side"]
+material = ExtResource("4")
+size = Vector3(1.4, 4.2, 7)
+
+[sub_resource type="BoxMesh" id="mesh_den_back"]
+material = ExtResource("4")
+size = Vector3(5.2, 4.2, 1.2)
+
+[sub_resource type="BoxMesh" id="mesh_den_roof"]
+material = ExtResource("4")
+size = Vector3(4.8, 0.65, 7.4)
+
+[sub_resource type="BoxMesh" id="mesh_den_post"]
+material = ExtResource("6")
+size = Vector3(0.45, 3.1, 0.45)
+
+[sub_resource type="BoxMesh" id="mesh_den_lintel"]
+material = ExtResource("6")
+size = Vector3(3.1, 0.5, 0.55)
 
 [node name="TestWorld" type="Node3D"]
 script = ExtResource("1")
@@ -653,9 +676,43 @@ script = ExtResource("11")
 [node name="CompleteDen" type="Node3D" parent="Anchors/DenSite"]
 visible = false
 
-[node name="PrimalisDen" parent="Anchors/DenSite/CompleteDen" instance=ExtResource("12")]
-position = Vector3(0, 1.336, 0)
-scale = Vector3(3, 3, 3)
+[node name="Floor" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(0, 0.25, 0)
+mesh = SubResource("mesh_den_floor")
+
+[node name="LeftWall" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(-3.3, 2.1, 0)
+mesh = SubResource("mesh_den_side")
+
+[node name="RightWall" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(3.3, 2.1, 0)
+mesh = SubResource("mesh_den_side")
+
+[node name="BackWall" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(0, 2.1, 2.9)
+mesh = SubResource("mesh_den_back")
+
+[node name="RoofLeft" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(-1.8, 4.55, 0)
+rotation = Vector3(0, 0, -0.38)
+mesh = SubResource("mesh_den_roof")
+
+[node name="RoofRight" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(1.8, 4.55, 0)
+rotation = Vector3(0, 0, 0.38)
+mesh = SubResource("mesh_den_roof")
+
+[node name="EntrancePostL" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(-1.3, 1.8, -3.25)
+mesh = SubResource("mesh_den_post")
+
+[node name="EntrancePostR" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(1.3, 1.8, -3.25)
+mesh = SubResource("mesh_den_post")
+
+[node name="EntranceLintel" type="MeshInstance3D" parent="Anchors/DenSite/CompleteDen"]
+position = Vector3(0, 3.35, -3.25)
+mesh = SubResource("mesh_den_lintel")
 
 [node name="Frame" type="Node3D" parent="Anchors/DenSite"]
 visible = false

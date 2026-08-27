@@ -25,8 +25,7 @@ var _last_percent := -1
 @onready var _roof: Node3D = $Roof
 @onready var _piles: Node3D = $Piles
 @onready var _label: Label3D = $Label
-## Optional finished-asset visual (the Creative Director's real Den model);
-## shown only at 100%, replacing the primitive construction stages.
+## Optional finished visual, shown only at 100% and replacing construction stages.
 @onready var _complete_den: Node3D = get_node_or_null("CompleteDen")
 
 func _ready() -> void:
