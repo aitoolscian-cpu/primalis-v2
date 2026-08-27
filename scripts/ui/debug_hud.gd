@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Compact Step 8 settlement/build catalog and entity inspection UI.
+## Compact Step 9A settlement/build catalog and entity inspection UI.
 
 @onready var _info: Label = $Panel/Margin/VBox/InfoLabel
 @onready var _feed_button: Button = $Panel/Margin/VBox/FeedButton
@@ -85,6 +85,7 @@ func _settlement_text() -> String:
 		foragers = _population.get_job_count(Villager.Job.FORAGER)
 		woodcutters = _population.get_job_count(Villager.Job.WOODCUTTER)
 		builders = _population.get_job_count(Villager.Job.BUILDER)
+	var hungry := _population.get_hungry_count() if _population != null else 0
 	var housed := _housing.get_housed_count() if _housing != null else 0
 	var den_line := "-"
 	if _den != null:
@@ -100,9 +101,9 @@ func _settlement_text() -> String:
 	var active := _build.get_active_project() if _build != null else null
 	if active != null and active.building_id == BuildModeController.HOUSE_ID:
 		houses_line += " (%d%%)" % active.get_percent()
-	return "PRIMALIS - STEP 8\nFOOD: %d  TIMBER: %d\nPOP: %d  HOUSED: %d / %d\nWORK: F %d  W %d  B %d\nDEN: %s\nSTOREHOUSE: %s\nHOUSES: %s" % [
-		_food, _timber, population, housed, population, foragers, woodcutters,
-		builders, den_line, storehouse_line, houses_line]
+	return "PRIMALIS - STEP 9A\nFOOD: %d  TIMBER: %d\nPOP: %d  HOUSED: %d / %d  HUNGRY: %d / %d\nWORK: F %d  W %d  B %d\nDEN: %s\nSTOREHOUSE: %s\nHOUSES: %s" % [
+		_food, _timber, population, housed, population, hungry, population,
+		foragers, woodcutters, builders, den_line, storehouse_line, houses_line]
 
 func _build_mode_text() -> String:
 	var definition := _build.get_selected_definition()
@@ -177,6 +178,8 @@ func _villager_text(villager: Villager) -> String:
 		villager.get_state_name(), villager.get_destination_label(),
 		villager.get_housing_label(), home_position.x, home_position.z,
 		villager.global_position.x, villager.global_position.z]
+	lines += "\nHUNGER: %d\nSTATUS: %s" % [
+		roundi(villager.get_hunger()), villager.get_hunger_status()]
 	match villager.job:
 		Villager.Job.FORAGER:
 			lines += "\nCarrying Food: %s" % ("YES" if villager.carried_food > 0 else "NO")

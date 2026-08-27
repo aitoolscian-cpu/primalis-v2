@@ -14,6 +14,7 @@ const PROXIMITY_LOOK_RANGE := 6.0
 @export var display_name := "Mara"  # [TESTING] placeholder identity, not canon.
 @export var job: Job = Job.FORAGER
 @export var tunic_color := Color(0.541, 0.404, 0.247)  # default: soil brown
+@export_range(0.0, 100.0, 1.0) var starting_hunger := 35.0
 ## Small deterministic offset applied at stations so villagers don't stack.
 @export var station_offset := Vector3.ZERO
 
@@ -50,10 +51,12 @@ var _temporary_home: Node3D = null
 @onready var _carry_prop: MeshInstance3D = $Visual/CarryBasket
 @onready var _log_prop: MeshInstance3D = $Visual/CarryLog
 @onready var _ai: VillagerAI = $AI
+@onready var _hunger: VillagerHunger = $Hunger
 
 func _ready() -> void:
 	_primalis = get_tree().get_first_node_in_group("primalis") as Node3D
 	_temporary_home = get_node_or_null(home_path) as Node3D
+	_hunger.set_hunger(starting_hunger)
 	_apply_tunic_color()
 
 func _apply_tunic_color() -> void:
@@ -122,6 +125,19 @@ func get_destination_label() -> String:
 
 func get_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()
+
+func get_hunger() -> float:
+	return _hunger.get_hunger()
+
+func get_hunger_status() -> String:
+	return _hunger.get_hunger_status()
+
+func is_hungry() -> bool:
+	return _hunger.is_hungry()
+
+## Clean mutation point for focused tests and the later eating step.
+func set_hunger(value: float) -> void:
+	_hunger.set_hunger(value)
 
 func assign_home(home_anchor: Node3D, housing_label: String) -> void:
 	_assigned_home = home_anchor

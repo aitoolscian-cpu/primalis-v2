@@ -26,6 +26,13 @@ func get_job_count(job: Villager.Job) -> int:
 			count += 1
 	return count
 
+func get_hungry_count() -> int:
+	var count := 0
+	for villager in _villagers:
+		if villager.is_hungry():
+			count += 1
+	return count
+
 func assign_job(villager: Villager, job: Villager.Job) -> void:
 	if villager == null or villager.job == job:
 		return
