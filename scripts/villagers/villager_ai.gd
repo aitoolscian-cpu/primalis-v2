@@ -38,6 +38,9 @@ enum State {
 	GOING_TO_TIMBER_DROP,
 	DEPOSITING_TIMBER,
 	FINISHING_TIMBER_DELIVERY,
+	GOING_TO_EAT,
+	EATING,
+	WAITING_FOR_FOOD,
 }
 
 @export var home_duration := 4.0
@@ -45,6 +48,10 @@ enum State {
 @export var chop_duration := 5.0
 @export var deposit_duration := 0.8
 @export var rest_duration := 4.0
+@export var meal_threshold := 70.0
+@export var eating_duration := 1.5
+@export var food_retry_interval := 1.0
+@export var meal_hunger_reduction := 50.0
 ## Workers stand on this ring around a build site, clear of the footprint
 ## that the completed building's collider will occupy.
 @export var build_perimeter_radius := 4.6
@@ -61,8 +68,10 @@ var _rest_point: Node3D
 var _grove: TimberSource
 var _yard: Node3D
 var _resources: SettlementResources
+var _population: PopulationManager
 var _build_director: Node
 var _current_project: ConstructionProject
+var _meal_target: Node3D
 
 @onready var _villager: Villager = get_parent() as Villager
 
@@ -74,6 +83,7 @@ func _ready() -> void:
 	_grove = _villager.get_node_or_null(_villager.timber_source_path) as TimberSource
 	_yard = _villager.get_node_or_null(_villager.material_yard_path) as Node3D
 	_resources = get_tree().get_first_node_in_group("settlement_resources") as SettlementResources
+	_population = get_tree().get_first_node_in_group("population_manager") as PopulationManager
 	_build_director = get_tree().get_first_node_in_group("build_mode")
 	_timer = home_duration  # everyone settles at home briefly, then their job routes them
 
@@ -98,7 +108,12 @@ func get_destination_label() -> String:
 			if _current_project != null and is_instance_valid(_current_project):
 				return _current_project.project_name
 			return "Build Site"
+		State.GOING_TO_EAT, State.EATING, State.WAITING_FOR_FOOD:
+			return _meal_destination_label()
 	return "-"
+
+func get_meal_target() -> Node3D:
+	return _meal_target
 
 ## --- Dynamic logistics -------------------------------------------------
 
@@ -126,6 +141,8 @@ func _active_project() -> ConstructionProject:
 ## Called by Villager.assign_job after the job field has changed.
 func on_job_changed(_new_job: Villager.Job) -> void:
 	_villager.set_working_motion(false)
+	if _is_meal_state():
+		return
 	var food_drop := _food_drop()
 	var timber_drop := _timber_drop()
 	if _villager.carried_food > 0 and food_drop != null:
@@ -164,6 +181,7 @@ func _route_to_job() -> void:
 
 func _physics_process(delta: float) -> void:
 	_timer -= delta
+	_interrupt_for_meal_if_needed()
 	match state:
 		State.AT_HOME:
 			if _timer <= 0.0:
@@ -186,7 +204,7 @@ func _physics_process(delta: float) -> void:
 		State.DEPOSITING:
 			if _timer <= 0.0:
 				_deposit_carried_food()
-				_start_travel(State.GOING_TO_REST, _rest_point)
+				_after_delivery(false)
 		State.GOING_TO_TIMBER:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_enter_station(State.CHOPPING, chop_duration)
@@ -205,7 +223,7 @@ func _physics_process(delta: float) -> void:
 		State.DEPOSITING_TIMBER:
 			if _timer <= 0.0:
 				_deposit_carried_timber()
-				_start_travel(State.GOING_TO_REST, _rest_point)
+				_after_delivery(false)
 		State.GOING_TO_REST:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_enter_station(State.RESTING, rest_duration)
@@ -221,11 +239,11 @@ func _physics_process(delta: float) -> void:
 		State.FINISHING_DELIVERY:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_deposit_carried_food()
-				_route_to_job()
+				_after_delivery(true)
 		State.FINISHING_TIMBER_DELIVERY:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_deposit_carried_timber()
-				_route_to_job()
+				_after_delivery(true)
 		State.GOING_TO_BUILD:
 			if _current_project == null or not is_instance_valid(_current_project):
 				_route_to_job()
@@ -246,6 +264,70 @@ func _physics_process(delta: float) -> void:
 			# Still a Builder; wake up when a new active project appears.
 			if _active_project() != null:
 				_route_to_job()
+		State.GOING_TO_EAT:
+			if _timer <= 0.0 and _villager.is_travel_finished():
+				if _resources != null and _resources.can_spend_food(1):
+					_enter_station(State.EATING, eating_duration)
+				else:
+					_enter_station(State.WAITING_FOR_FOOD, food_retry_interval)
+		State.EATING:
+			if _timer <= 0.0:
+				_complete_meal()
+		State.WAITING_FOR_FOOD:
+			if _timer <= 0.0:
+				var current_target := _food_drop()
+				if current_target != _meal_target:
+					_start_meal_trip()
+				elif _resources != null and _resources.can_spend_food(1):
+					_enter_station(State.EATING, eating_duration)
+				else:
+					_timer = food_retry_interval
+
+func _interrupt_for_meal_if_needed() -> void:
+	if _is_meal_state() or _villager.get_hunger() < meal_threshold:
+		return
+	if _villager.carried_food > 0:
+		if state not in [State.GOING_TO_STORE, State.DEPOSITING, State.FINISHING_DELIVERY]:
+			_villager.set_working_motion(false)
+			_start_travel(State.FINISHING_DELIVERY, _food_drop())
+		return
+	if _villager.carried_timber > 0:
+		if state not in [State.GOING_TO_TIMBER_DROP, State.DEPOSITING_TIMBER,
+				State.FINISHING_TIMBER_DELIVERY]:
+			_villager.set_working_motion(false)
+			_start_travel(State.FINISHING_TIMBER_DELIVERY, _timber_drop())
+		return
+	_villager.set_working_motion(false)
+	_start_meal_trip()
+
+func _is_meal_state() -> bool:
+	return state in [State.GOING_TO_EAT, State.EATING, State.WAITING_FOR_FOOD]
+
+func _start_meal_trip() -> void:
+	_meal_target = _food_drop()
+	_start_travel(State.GOING_TO_EAT, _meal_target)
+
+func _after_delivery(route_job_directly: bool) -> void:
+	if _villager.get_hunger() >= meal_threshold:
+		_start_meal_trip()
+	elif route_job_directly:
+		_route_to_job()
+	else:
+		_start_travel(State.GOING_TO_REST, _rest_point)
+
+func _complete_meal() -> void:
+	# Atomic spend at completion resolves final-unit contention safely.
+	if _resources != null and _resources.try_spend_food(1):
+		if _population != null:
+			_population.record_villager_food_consumed(1)
+		_villager.set_hunger(_villager.get_hunger() - meal_hunger_reduction)
+		_route_to_job()
+	else:
+		_enter_station(State.WAITING_FOR_FOOD, food_retry_interval)
+
+func _meal_destination_label() -> String:
+	var storehouse := _completed_storehouse()
+	return "Storehouse" if storehouse != null and _meal_target == storehouse else "Food Cache"
 
 func _deposit_carried_food() -> void:
 	if _villager.carried_food > 0 and _resources != null:

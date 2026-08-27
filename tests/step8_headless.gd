@@ -359,7 +359,8 @@ func _carried_timber_total() -> int:
 
 func _conservation(label: String) -> void:
 	var food_total := _source.get_remaining() + _resources.get_food() \
-		+ _feeding.total_food_consumed + _carried_food_total()
+		+ _feeding.total_food_consumed + _population.total_food_consumed_by_villagers \
+		+ _carried_food_total()
 	var timber_total := _grove.get_remaining() + _resources.get_timber() \
 		+ _build.total_timber_spent + _carried_timber_total()
 	_check(food_total == _initial_food, "%s Food conservation %d == %d" % [label, food_total, _initial_food])

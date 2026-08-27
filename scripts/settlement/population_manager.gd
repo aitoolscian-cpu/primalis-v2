@@ -5,6 +5,7 @@ extends Node
 
 signal jobs_changed
 
+var total_food_consumed_by_villagers := 0
 var _villagers: Array[Villager] = []
 
 func _ready() -> void:
@@ -32,6 +33,10 @@ func get_hungry_count() -> int:
 		if villager.is_hungry():
 			count += 1
 	return count
+
+func record_villager_food_consumed(amount: int) -> void:
+	if amount > 0:
+		total_food_consumed_by_villagers += amount
 
 func assign_job(villager: Villager, job: Villager.Job) -> void:
 	if villager == null or villager.job == job:

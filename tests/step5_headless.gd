@@ -14,6 +14,7 @@ var _modes: ControlModeManager
 var _resources: SettlementResources
 var _feeding: FeedingService
 var _source: FoodSource
+var _population: PopulationManager
 var _initial_total := 0
 
 func _initialize() -> void:
@@ -37,10 +38,10 @@ func _run() -> void:
 	_source = get_first_node_in_group("food_source") as FoodSource
 	# Step 6 evolution: multiple villagers exist. Keep Step 5's economics
 	# exact by making Mara the sole Forager for this suite.
-	var population := get_first_node_in_group("population_manager") as PopulationManager
+	_population = get_first_node_in_group("population_manager") as PopulationManager
 	for v in get_nodes_in_group("villager"):
 		if v != _villager:
-			population.assign_job(v as Villager, Villager.Job.BUILDER)
+			_population.assign_job(v as Villager, Villager.Job.BUILDER)
 	_initial_total = _source.get_remaining() + _resources.get_food()
 
 	# T1: resource manager basics.
@@ -253,12 +254,14 @@ func _run() -> void:
 
 func _conservation_holds() -> bool:
 	var total := _source.get_remaining() + _resources.get_food() \
-		+ _feeding.total_food_consumed + _villager.carried_food
+		+ _feeding.total_food_consumed + _population.total_food_consumed_by_villagers \
+		+ _villager.carried_food
 	return total == _initial_total
 
 func _conservation(label: String) -> void:
 	var total := _source.get_remaining() + _resources.get_food() \
-		+ _feeding.total_food_consumed + _villager.carried_food
+		+ _feeding.total_food_consumed + _population.total_food_consumed_by_villagers \
+		+ _villager.carried_food
 	_check(total == _initial_total,
 		"%s conservation: source+stored+consumed+carried == %d (got %d)" % [label, _initial_total, total])
 

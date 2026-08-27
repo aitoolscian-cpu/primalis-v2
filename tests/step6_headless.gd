@@ -134,6 +134,8 @@ func _run() -> void:
 	await _set_builders(1)  # 3 foragers, 1 builder
 	var source_before := _source.get_remaining()
 	var food_before := _resources.get_food()
+	var meals_before := _population.total_food_consumed_by_villagers
+	var carried_before := _carried_total()
 	var carried_ok := true
 	var deposits := [0]
 	_resources.food_changed.connect(func(_a: int) -> void: deposits[0] += 1)
@@ -147,7 +149,10 @@ func _run() -> void:
 	_check(_source.get_remaining() >= 0, "T5 source never negative")
 	var harvested := source_before - _source.get_remaining()
 	var gained := _resources.get_food() - food_before
-	_check(harvested == gained + _carried_total(), "T5 every harvest is deposited or in transit (%d = %d + %d)" % [harvested, gained, _carried_total()])
+	var meals := _population.total_food_consumed_by_villagers - meals_before
+	_check(harvested + carried_before == gained + _carried_total() + meals,
+		"T5 all starting and harvested Food is stored, carried, or eaten (%d + %d = %d + %d + %d)" % [
+			harvested, carried_before, gained, _carried_total(), meals])
 	_check(harvested >= 3, "T5 multiple foragers actually produced (%d harvests)" % harvested)
 	_conservation("T5")
 
@@ -263,12 +268,16 @@ func _run() -> void:
 	f0 = Engine.get_physics_frames()
 	while _carried_total() > 0 and (Engine.get_physics_frames() - f0) * Engine.time_scale / 60.0 < 120.0:
 		await physics_frame
-	var food_locked := _resources.get_food()
+	var food_accounted_locked := _resources.get_food() \
+		+ _population.total_food_consumed_by_villagers
 	var hunger_t10 := hunger_node.hunger
 	f0 = Engine.get_physics_frames()
 	while (Engine.get_physics_frames() - f0) * Engine.time_scale / 60.0 < 90.0:
 		await physics_frame
-	_check(_resources.get_food() == food_locked, "T10 all-builders: food production stopped")
+	var food_accounted_after := _resources.get_food() \
+		+ _population.total_food_consumed_by_villagers
+	_check(food_accounted_after == food_accounted_locked,
+		"T10 all-builders: no Food produced; meals remain conserved")
 	_check(hunger_node.hunger > hunger_t10, "T10 hunger keeps rising (pressure)")
 	# Reassign to foragers: production resumes (resource-pressure recovery).
 	_reset_source(10)
@@ -386,12 +395,14 @@ func _carried_total() -> int:
 
 func _conservation_holds() -> bool:
 	var total := _source.get_remaining() + _resources.get_food() \
-		+ _feeding.total_food_consumed + _carried_total()
+		+ _feeding.total_food_consumed + _population.total_food_consumed_by_villagers \
+		+ _carried_total()
 	return total == _initial_total
 
 func _conservation(label: String) -> void:
 	var total := _source.get_remaining() + _resources.get_food() \
-		+ _feeding.total_food_consumed + _carried_total()
+		+ _feeding.total_food_consumed + _population.total_food_consumed_by_villagers \
+		+ _carried_total()
 	_check(total == _initial_total,
 		"%s conservation: source+stored+consumed+carried == %d (got %d)" % [label, _initial_total, total])
 

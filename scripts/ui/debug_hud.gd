@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Compact Step 9A settlement/build catalog and entity inspection UI.
+## Compact Step 9B settlement/build catalog and entity inspection UI.
 
 @onready var _info: Label = $Panel/Margin/VBox/InfoLabel
 @onready var _feed_button: Button = $Panel/Margin/VBox/FeedButton
@@ -101,7 +101,7 @@ func _settlement_text() -> String:
 	var active := _build.get_active_project() if _build != null else null
 	if active != null and active.building_id == BuildModeController.HOUSE_ID:
 		houses_line += " (%d%%)" % active.get_percent()
-	return "PRIMALIS - STEP 9A\nFOOD: %d  TIMBER: %d\nPOP: %d  HOUSED: %d / %d  HUNGRY: %d / %d\nWORK: F %d  W %d  B %d\nDEN: %s\nSTOREHOUSE: %s\nHOUSES: %s" % [
+	return "PRIMALIS - STEP 9B\nFOOD: %d  TIMBER: %d\nPOP: %d  HOUSED: %d / %d  HUNGRY: %d / %d\nWORK: F %d  W %d  B %d\nDEN: %s\nSTOREHOUSE: %s\nHOUSES: %s" % [
 		_food, _timber, population, housed, population, hungry, population,
 		foragers, woodcutters, builders, den_line, storehouse_line, houses_line]
 
