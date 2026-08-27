@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "status": "TESTING",
+  "description": "Provisional PRIMALIS static intake budgets. Runtime profiling in Godot remains authoritative.",
+  "project_context": {
+    "development_gpu": "Intel Iris Xe integrated graphics",
+    "primary_resolution": "1920x1080",
+    "normal_fps_target": 60,
+    "heavy_gameplay_minimum_fps": 30
+  },
+  "general": {
+    "model_extensions": [".glb", ".gltf", ".fbx", ".blend"],
+    "lfs_required_extensions": [".glb", ".fbx", ".blend"],
+    "path_length_warning": 180,
+    "generic_filenames": ["model", "untitled", "final", "final_final"]
+  },
+  "categories": {
+    "GENERIC_BUILDING": {
+      "lod0_triangles": {"target_max": 30000, "fail_above": 75000},
+      "lod1_triangles": {"target_max": 12000},
+      "lod2_triangles": {"target_max": 3000},
+      "materials": {"target_max": 3},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 20, "fail_above": 60},
+      "lod_expected": true
+    },
+    "HERO_BUILDING": {
+      "lod0_triangles": {"target_max": 60000, "fail_above": 150000},
+      "lod1_triangles": {"target_max": 25000},
+      "lod2_triangles": {"target_max": 6000},
+      "materials": {"target_max": 5},
+      "texture_dimension": {"target_max": 2048, "fail_above": 8192},
+      "disk_mib": {"target_max": 35, "fail_above": 100},
+      "lod_expected": true
+    },
+    "VILLAGER": {
+      "lod0_triangles": {"target_max": 20000, "fail_above": 50000},
+      "lod1_triangles": {"target_max": 8000},
+      "lod2_triangles": {"target_max": 2500},
+      "materials": {"target_max": 2},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 20, "fail_above": 60},
+      "lod_expected": true
+    },
+    "PRIMALIS": {
+      "lod0_triangles": {"target_max": 80000, "fail_above": 200000},
+      "lod1_triangles": {"target_max": 35000},
+      "lod2_triangles": {"target_max": 10000},
+      "materials": {"target_max": 6},
+      "texture_dimension": {"target_max": 2048, "fail_above": 8192},
+      "disk_mib": {"target_max": 50, "fail_above": 150},
+      "lod_expected": true
+    },
+    "TREE": {
+      "lod0_triangles": {"target_max": 8000, "fail_above": 30000},
+      "lod1_triangles": {"target_max": 3000},
+      "lod2_triangles": {"target_max": 800},
+      "materials": {"target_max": 2},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 10, "fail_above": 30},
+      "lod_expected": true
+    },
+    "VEGETATION": {
+      "lod0_triangles": {"target_max": 2000, "fail_above": 10000},
+      "lod1_triangles": {"target_max": 800},
+      "lod2_triangles": {"target_max": 200},
+      "materials": {"target_max": 1},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 5, "fail_above": 20},
+      "lod_expected": true
+    },
+    "ROCK": {
+      "lod0_triangles": {"target_max": 10000, "fail_above": 40000},
+      "lod1_triangles": {"target_max": 4000},
+      "lod2_triangles": {"target_max": 1000},
+      "materials": {"target_max": 2},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 10, "fail_above": 40},
+      "lod_expected": true
+    },
+    "PROP": {
+      "lod0_triangles": {"target_max": 5000, "fail_above": 25000},
+      "lod1_triangles": {"target_max": 2000},
+      "lod2_triangles": {"target_max": 500},
+      "materials": {"target_max": 2},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 10, "fail_above": 40},
+      "lod_expected": false
+    },
+    "ENEMY": {
+      "lod0_triangles": {"target_max": 25000, "fail_above": 60000},
+      "lod1_triangles": {"target_max": 10000},
+      "lod2_triangles": {"target_max": 3000},
+      "materials": {"target_max": 3},
+      "texture_dimension": {"target_max": 2048, "fail_above": 4096},
+      "disk_mib": {"target_max": 25, "fail_above": 75},
+      "lod_expected": true
+    },
+    "BOSS": {
+      "lod0_triangles": {"target_max": 100000, "fail_above": 250000},
+      "lod1_triangles": {"target_max": 45000},
+      "lod2_triangles": {"target_max": 12000},
+      "materials": {"target_max": 8},
+      "texture_dimension": {"target_max": 4096, "fail_above": 8192},
+      "disk_mib": {"target_max": 60, "fail_above": 180},
+      "lod_expected": true
+    },
+    "UNKNOWN": {
+      "lod_expected": null
+    }
+  }
+}

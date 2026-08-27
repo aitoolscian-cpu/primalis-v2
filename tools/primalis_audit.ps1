@@ -475,6 +475,65 @@ try {
         Add-Check FAIL "Skipped."
     }
 
+    Write-Section "Asset Intake Tooling"
+    $pythonCommand = Get-Command python -ErrorAction SilentlyContinue
+    $assetToolTestPath = Join-Path $projectRoot 'tests\asset_audit_tests.py'
+    $assetAuditEntryPoint = Join-Path $projectRoot 'tools\asset_audit.ps1'
+    if ($null -eq $pythonCommand) {
+        Add-Check FAIL "Python is unavailable; asset-intake tooling tests cannot run."
+    } elseif (-not (Test-Path -LiteralPath $assetToolTestPath -PathType Leaf)) {
+        Add-Check FAIL "tests/asset_audit_tests.py is missing."
+    } else {
+        $assetTestRun = Invoke-CapturedProcess -FilePath $pythonCommand.Source `
+            -Arguments @('-B', $assetToolTestPath) `
+            -WorkingDirectory $projectRoot -TimeoutSeconds 60
+        $assetTestSummary = @($assetTestRun.Output | Where-Object { $_ -match '^Ran \d+ tests? in ' } | Select-Object -Last 1)
+        if ($assetTestRun.TimedOut -or $assetTestRun.ExitCode -ne 0) {
+            Add-Check FAIL ("Asset tooling tests failed (exit {0})." -f $assetTestRun.ExitCode)
+            Write-DiagnosticSample "Asset tooling test output" $assetTestRun.Output 12
+        } else {
+            $summaryText = if ($assetTestSummary.Count -gt 0) { $assetTestSummary[0].Trim() } else { 'all tests passed' }
+            Add-Check PASS ("Asset tooling tests: {0}." -f $summaryText)
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $assetAuditEntryPoint -PathType Leaf)) {
+        Add-Check FAIL "tools/asset_audit.ps1 is missing."
+    } else {
+        $powerShellCommand = Get-Command powershell.exe -ErrorAction SilentlyContinue
+        if ($null -eq $powerShellCommand) {
+            Add-Check FAIL "PowerShell executable is unavailable for the asset-performance summary."
+        } else {
+            $assetSummaryRun = Invoke-CapturedProcess -FilePath $powerShellCommand.Source `
+                -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $assetAuditEntryPoint, '-All', '-Summary') `
+                -WorkingDirectory $projectRoot -TimeoutSeconds 60
+            $summaryJsonLine = @($assetSummaryRun.Output | Where-Object { $_ -match '^ASSET PERFORMANCE JSON:\s*\{' } | Select-Object -Last 1)
+            if ($assetSummaryRun.TimedOut -or $summaryJsonLine.Count -eq 0) {
+                Add-Check FAIL ("Asset-performance summary could not be read (exit {0})." -f $assetSummaryRun.ExitCode)
+                Write-DiagnosticSample "Asset summary output" $assetSummaryRun.Output 12
+            } else {
+                try {
+                    $summaryJson = $summaryJsonLine[0] -replace '^ASSET PERFORMANCE JSON:\s*', '' | ConvertFrom-Json
+                    $assetPassCount = [int]$summaryJson.PASS
+                    $assetWarnCount = [int]$summaryJson.'PASS WITH WARNINGS'
+                    $assetFailCount = [int]$summaryJson.FAIL
+                    $assetTotalCount = [int]$summaryJson.TOTAL
+                    $summaryMessage = "Asset performance: {0} PASS, {1} WARN, {2} FAIL ({3} total)." -f $assetPassCount, $assetWarnCount, $assetFailCount, $assetTotalCount
+                    if ($assetFailCount -gt 0) {
+                        Add-Check FAIL $summaryMessage
+                    } elseif ($assetWarnCount -gt 0) {
+                        Add-Check WARN $summaryMessage
+                    } else {
+                        Add-Check PASS $summaryMessage
+                    }
+                    Add-Check INFO "Detailed asset reports: captures/audit/latest_asset_audit.txt and latest_asset_audit.json"
+                } catch {
+                    Add-Check FAIL ("Asset-performance summary JSON was malformed: {0}" -f $_.Exception.Message)
+                }
+            }
+        }
+    }
+
     Write-Section "Large Files"
     $auditFiles = @(Get-FilesExcludingDirectories -RootPath $projectRoot -ExcludedDirectoryNames @('.git', '.godot', 'node_modules', '.sf'))
     $largeFiles = @($auditFiles | Where-Object { $_.Length -gt 10MB } | Sort-Object Length -Descending)
