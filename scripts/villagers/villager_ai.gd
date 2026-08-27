@@ -93,7 +93,7 @@ func get_destination_label() -> String:
 		State.GOING_TO_REST:
 			return "Rest Point"
 		State.GOING_HOME:
-			return "Home"
+			return _villager.get_housing_label()
 		State.GOING_TO_BUILD:
 			if _current_project != null and is_instance_valid(_current_project):
 				return _current_project.project_name
@@ -211,7 +211,7 @@ func _physics_process(delta: float) -> void:
 				_enter_station(State.RESTING, rest_duration)
 		State.RESTING:
 			if _timer <= 0.0:
-				_start_travel(State.GOING_HOME, _home)
+				_start_travel(State.GOING_HOME, _current_home())
 		State.GOING_HOME:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_enter_station(State.AT_HOME, home_duration)
@@ -256,6 +256,13 @@ func _deposit_carried_timber() -> void:
 	if _villager.carried_timber > 0 and _resources != null:
 		_resources.add_timber(_villager.carried_timber)
 	_villager.set_carried_timber(0)
+
+func _current_home() -> Node3D:
+	return _villager.get_home_target(_home)
+
+func on_home_changed() -> void:
+	if state == State.GOING_HOME:
+		_villager.move_to(_current_home().global_position)
 
 func _start_travel(next_state: State, anchor: Node3D) -> void:
 	if anchor == null:

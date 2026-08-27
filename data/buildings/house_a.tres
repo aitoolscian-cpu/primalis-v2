@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BuildingDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/settlement/building_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/settlement/house_a.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+building_id = &"BLD_002"
+display_name = "HOUSE"
+timber_cost = 6
+footprint = Vector3(5, 2, 4)
+max_instances = 2
+housing_capacity = 2
+packed_scene = ExtResource("2")

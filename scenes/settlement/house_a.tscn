@@ -1,0 +1,156 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/settlement/construction_project.gd" id="1"]
+[ext_resource type="Material" path="res://assets/materials/tree_trunk.tres" id="2"]
+[ext_resource type="Material" path="res://assets/materials/rock.tres" id="3"]
+[ext_resource type="Material" path="res://assets/materials/ground_path.tres" id="4"]
+
+[sub_resource type="BoxMesh" id="mesh_foundation"]
+material = ExtResource("4")
+size = Vector3(5, 0.14, 4)
+
+[sub_resource type="BoxMesh" id="mesh_pile"]
+material = ExtResource("2")
+size = Vector3(1.5, 0.28, 0.35)
+
+[sub_resource type="BoxMesh" id="mesh_post"]
+material = ExtResource("2")
+size = Vector3(0.25, 2.5, 0.25)
+
+[sub_resource type="BoxMesh" id="mesh_beam_x"]
+material = ExtResource("2")
+size = Vector3(4.7, 0.25, 0.25)
+
+[sub_resource type="BoxMesh" id="mesh_wall_side"]
+material = ExtResource("3")
+size = Vector3(0.22, 2.2, 3.7)
+
+[sub_resource type="BoxMesh" id="mesh_wall_back"]
+material = ExtResource("3")
+size = Vector3(4.7, 2.2, 0.22)
+
+[sub_resource type="BoxMesh" id="mesh_wall_front"]
+material = ExtResource("3")
+size = Vector3(1.55, 2.2, 0.22)
+
+[sub_resource type="PrismMesh" id="mesh_roof"]
+material = ExtResource("2")
+size = Vector3(5.5, 1.3, 4.7)
+
+[sub_resource type="BoxMesh" id="mesh_door"]
+material = ExtResource("2")
+size = Vector3(1.25, 1.9, 0.15)
+
+[sub_resource type="BoxShape3D" id="shape_obstacle"]
+size = Vector3(5, 2.8, 4)
+
+[node name="House" type="Node3D" groups=["house"]]
+script = ExtResource("1")
+project_name = "HOUSE"
+building_id = &"BLD_002"
+housing_capacity = 2
+
+[node name="Foundation" type="Node3D" parent="."]
+
+[node name="Slab" type="MeshInstance3D" parent="Foundation"]
+position = Vector3(0, 0.07, 0)
+mesh = SubResource("mesh_foundation")
+
+[node name="PileA" type="MeshInstance3D" parent="Foundation"]
+position = Vector3(1.55, 0.22, 1.45)
+rotation = Vector3(0, 0.35, 0)
+mesh = SubResource("mesh_pile")
+
+[node name="Piles" type="Node3D" parent="."]
+
+[node name="PileB" type="MeshInstance3D" parent="Piles"]
+position = Vector3(-1.45, 0.22, -1.25)
+rotation = Vector3(0, -0.25, 0)
+mesh = SubResource("mesh_pile")
+
+[node name="Frame" type="Node3D" parent="."]
+visible = false
+
+[node name="PostA" type="MeshInstance3D" parent="Frame"]
+position = Vector3(-2.2, 1.25, -1.7)
+mesh = SubResource("mesh_post")
+
+[node name="PostB" type="MeshInstance3D" parent="Frame"]
+position = Vector3(2.2, 1.25, -1.7)
+mesh = SubResource("mesh_post")
+
+[node name="PostC" type="MeshInstance3D" parent="Frame"]
+position = Vector3(-2.2, 1.25, 1.7)
+mesh = SubResource("mesh_post")
+
+[node name="PostD" type="MeshInstance3D" parent="Frame"]
+position = Vector3(2.2, 1.25, 1.7)
+mesh = SubResource("mesh_post")
+
+[node name="BeamFront" type="MeshInstance3D" parent="Frame"]
+position = Vector3(0, 2.5, -1.7)
+mesh = SubResource("mesh_beam_x")
+
+[node name="BeamBack" type="MeshInstance3D" parent="Frame"]
+position = Vector3(0, 2.5, 1.7)
+mesh = SubResource("mesh_beam_x")
+
+[node name="Walls" type="Node3D" parent="."]
+visible = false
+
+[node name="Left" type="MeshInstance3D" parent="Walls"]
+position = Vector3(-2.3, 1.2, 0)
+mesh = SubResource("mesh_wall_side")
+
+[node name="Right" type="MeshInstance3D" parent="Walls"]
+position = Vector3(2.3, 1.2, 0)
+mesh = SubResource("mesh_wall_side")
+
+[node name="Back" type="MeshInstance3D" parent="Walls"]
+position = Vector3(0, 1.2, 1.82)
+mesh = SubResource("mesh_wall_back")
+
+[node name="FrontL" type="MeshInstance3D" parent="Walls"]
+position = Vector3(-1.58, 1.2, -1.82)
+mesh = SubResource("mesh_wall_front")
+
+[node name="FrontR" type="MeshInstance3D" parent="Walls"]
+position = Vector3(1.58, 1.2, -1.82)
+mesh = SubResource("mesh_wall_front")
+
+[node name="Door" type="MeshInstance3D" parent="Walls"]
+position = Vector3(0, 0.96, -1.96)
+mesh = SubResource("mesh_door")
+
+[node name="Roof" type="Node3D" parent="."]
+visible = false
+
+[node name="RoofMesh" type="MeshInstance3D" parent="Roof"]
+position = Vector3(0, 3.05, 0)
+rotation = Vector3(0, 1.5708, 0)
+mesh = SubResource("mesh_roof")
+
+[node name="Label" type="Label3D" parent="."]
+position = Vector3(0, 4.2, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.8)
+text = "HOUSE 0%"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="HomeAnchors" type="Node3D" parent="."]
+
+[node name="Home1" type="Marker3D" parent="HomeAnchors"]
+position = Vector3(-0.7, 0, -3.8)
+
+[node name="Home2" type="Marker3D" parent="HomeAnchors"]
+position = Vector3(0.7, 0, -3.8)
+
+[node name="Obstacle" type="StaticBody3D" parent="."]
+collision_layer = 1
+
+[node name="Shape" type="CollisionShape3D" parent="Obstacle"]
+position = Vector3(0, 1.4, 0)
+shape = SubResource("shape_obstacle")
+disabled = true

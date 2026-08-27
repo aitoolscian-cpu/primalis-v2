@@ -43,7 +43,17 @@ visible = false
 theme_override_font_sizes/font_size = 14
 text = "ASSIGN BUILDER"
 
+[node name="BuildLabel" type="Label" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "BUILD"
+
 [node name="PlaceStorehouseButton" type="Button" parent="Panel/Margin/VBox"]
 visible = false
 theme_override_font_sizes/font_size = 14
 text = "PLACE STOREHOUSE - 8 TIMBER"
+
+[node name="PlaceHouseButton" type="Button" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "PLACE HOUSE - 6 TIMBER"

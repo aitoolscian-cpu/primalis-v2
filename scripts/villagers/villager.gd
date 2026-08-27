@@ -36,10 +36,13 @@ const PROXIMITY_LOOK_RANGE := 6.0
 
 var carried_food := 0
 var carried_timber := 0
+var _assigned_home: Node3D = null
+var _housing_label := "TEMP CAMP"
 
 var _bob_time := 0.0
 var _working_motion := false
 var _primalis: Node3D = null
+var _temporary_home: Node3D = null
 
 @onready var _agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _selection: PrimalisSelection = $Selection
@@ -50,6 +53,7 @@ var _primalis: Node3D = null
 
 func _ready() -> void:
 	_primalis = get_tree().get_first_node_in_group("primalis") as Node3D
+	_temporary_home = get_node_or_null(home_path) as Node3D
 	_apply_tunic_color()
 
 func _apply_tunic_color() -> void:
@@ -118,6 +122,23 @@ func get_destination_label() -> String:
 
 func get_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()
+
+func assign_home(home_anchor: Node3D, housing_label: String) -> void:
+	_assigned_home = home_anchor
+	_housing_label = housing_label
+	_ai.on_home_changed()
+
+func get_home_target(temporary_home: Node3D) -> Node3D:
+	if _assigned_home != null and is_instance_valid(_assigned_home):
+		return _assigned_home
+	return temporary_home if temporary_home != null else _temporary_home
+
+func get_housing_label() -> String:
+	return _housing_label
+
+func get_home_position(temporary_home: Node3D = null) -> Vector3:
+	var target := get_home_target(temporary_home)
+	return target.global_position if target != null else Vector3.ZERO
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():

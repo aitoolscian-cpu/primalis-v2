@@ -1,7 +1,7 @@
 class_name ConstructionProject
 extends Node3D
-## One shared construction project (the prototype Primalis Den).
-## Progress 0-100, labour only (no material costs in Step 6). Each Builder
+## Shared construction project used by the Den and player-placed buildings.
+## Progress 0-100. Each Builder
 ## in BUILDING state calls contribute(delta) per physics tick, so total
 ## rate scales linearly with active builders. Visual stages are primitive
 ## child nodes toggled by progress; once complete, progress is frozen.
@@ -11,9 +11,12 @@ signal completed
 
 @export var project_name := "PRIMALIS DEN"
 @export var rate_per_builder := 0.35  # progress per second per active builder
+@export var building_id: StringName
+@export var housing_capacity := 0
 
 var progress := 0.0
 var complete := false
+var instance_number := 0
 
 var _last_percent := -1
 
@@ -34,6 +37,17 @@ func get_percent() -> int:
 
 func is_complete() -> bool:
 	return complete
+
+func configure_building(definition: BuildingDefinition, number: int) -> void:
+	building_id = definition.building_id
+	project_name = definition.display_name
+	housing_capacity = definition.housing_capacity
+	instance_number = number
+
+func get_home_anchor(slot: int) -> Node3D:
+	if slot < 0 or slot >= housing_capacity:
+		return null
+	return get_node_or_null("HomeAnchors/Home%d" % (slot + 1)) as Node3D
 
 ## Called by each actively BUILDING villager every physics tick.
 func contribute(delta: float) -> void:
