@@ -2,13 +2,22 @@ class_name VillagerAI
 extends Node
 ## Job-driven routine for one villager.
 ##
-## FORAGER: AT_HOME -> GOING_TO_SOURCE -> GATHERING -> GOING_TO_STORE ->
-##          DEPOSITING -> GOING_TO_REST -> RESTING -> GOING_HOME -> repeat.
-##          Source exhausted -> IDLE_NO_WORK at home.
-## BUILDER: GOING_TO_BUILD -> BUILDING (continuous labour) ->
-##          IDLE_PROJECT_COMPLETE once the project finishes.
-## Job change while carrying Food passes through FINISHING_DELIVERY so the
-## carried unit is deposited first — Food conservation stays exact.
+## FORAGER:    AT_HOME -> GOING_TO_SOURCE -> GATHERING -> GOING_TO_STORE ->
+##             DEPOSITING -> GOING_TO_REST -> RESTING -> GOING_HOME -> repeat.
+## WOODCUTTER: AT_HOME -> GOING_TO_TIMBER -> CHOPPING -> GOING_TO_TIMBER_DROP
+##             -> DEPOSITING_TIMBER -> GOING_TO_REST -> ... -> repeat.
+## BUILDER:    GOING_TO_BUILD -> BUILDING on the settlement's ACTIVE project
+##             (Den first, then the player-placed Storehouse);
+##             IDLE_PROJECT_COMPLETE while no active project exists — and it
+##             polls, so a newly placed site wakes idle builders.
+##
+## Logistics destinations are dynamic: before the player-built Storehouse
+## completes, Food goes to the temp cache and Timber to the temp yard;
+## afterwards both go to the Storehouse. A worker already travelling keeps
+## its issued destination and retargets next cycle (least brittle option).
+##
+## Job change while carrying passes through FINISHING_DELIVERY (food) or
+## FINISHING_TIMBER_DELIVERY (timber) — conservation stays exact.
 
 enum State {
 	AT_HOME,
@@ -24,12 +33,21 @@ enum State {
 	GOING_TO_BUILD,
 	BUILDING,
 	IDLE_PROJECT_COMPLETE,
+	GOING_TO_TIMBER,
+	CHOPPING,
+	GOING_TO_TIMBER_DROP,
+	DEPOSITING_TIMBER,
+	FINISHING_TIMBER_DELIVERY,
 }
 
 @export var home_duration := 4.0
 @export var gather_duration := 5.0
+@export var chop_duration := 5.0
 @export var deposit_duration := 0.8
 @export var rest_duration := 4.0
+## Workers stand on this ring around a build site, clear of the footprint
+## that the completed building's collider will occupy.
+@export var build_perimeter_radius := 4.6
 
 const TRAVEL_GRACE := 0.3  # agent needs a beat before is_navigation_finished is meaningful
 
@@ -40,8 +58,11 @@ var _home: Node3D
 var _source: FoodSource
 var _store: Node3D
 var _rest_point: Node3D
-var _den: ConstructionProject
+var _grove: TimberSource
+var _yard: Node3D
 var _resources: SettlementResources
+var _build_director: Node
+var _current_project: ConstructionProject
 
 @onready var _villager: Villager = get_parent() as Villager
 
@@ -50,8 +71,10 @@ func _ready() -> void:
 	_source = _villager.get_node_or_null(_villager.source_path) as FoodSource
 	_store = _villager.get_node_or_null(_villager.store_path) as Node3D
 	_rest_point = _villager.get_node_or_null(_villager.rest_point_path) as Node3D
-	_den = _villager.get_node_or_null(_villager.den_path) as ConstructionProject
+	_grove = _villager.get_node_or_null(_villager.timber_source_path) as TimberSource
+	_yard = _villager.get_node_or_null(_villager.material_yard_path) as Node3D
 	_resources = get_tree().get_first_node_in_group("settlement_resources") as SettlementResources
+	_build_director = get_tree().get_first_node_in_group("build_mode")
 	_timer = home_duration  # everyone settles at home briefly, then their job routes them
 
 func get_state_name() -> String:
@@ -62,46 +85,89 @@ func get_destination_label() -> String:
 		State.GOING_TO_SOURCE:
 			return "Food Source"
 		State.GOING_TO_STORE, State.FINISHING_DELIVERY:
-			return "Food Store"
+			return "Storehouse" if _completed_storehouse() != null else "Food Cache"
+		State.GOING_TO_TIMBER:
+			return "Timber Grove"
+		State.GOING_TO_TIMBER_DROP, State.FINISHING_TIMBER_DELIVERY:
+			return "Storehouse" if _completed_storehouse() != null else "Material Yard"
 		State.GOING_TO_REST:
 			return "Rest Point"
 		State.GOING_HOME:
 			return "Home"
 		State.GOING_TO_BUILD:
-			return "Den Site"
+			if _current_project != null and is_instance_valid(_current_project):
+				return _current_project.project_name
+			return "Build Site"
 	return "-"
 
+## --- Dynamic logistics -------------------------------------------------
+
+func _completed_storehouse() -> ConstructionProject:
+	var sh := get_tree().get_first_node_in_group("storehouse") as ConstructionProject
+	if sh != null and sh.is_complete():
+		return sh
+	return null
+
+func _food_drop() -> Node3D:
+	var sh := _completed_storehouse()
+	return sh if sh != null else _store
+
+func _timber_drop() -> Node3D:
+	var sh := _completed_storehouse()
+	return sh if sh != null else _yard
+
+func _active_project() -> ConstructionProject:
+	if _build_director != null and _build_director.has_method("get_active_project"):
+		return _build_director.get_active_project()
+	return null
+
+## --- Job change --------------------------------------------------------
+
 ## Called by Villager.assign_job after the job field has changed.
-func on_job_changed(new_job: Villager.Job) -> void:
+func on_job_changed(_new_job: Villager.Job) -> void:
 	_villager.set_working_motion(false)
-	if new_job == Villager.Job.BUILDER:
-		if _villager.carried_food > 0:
-			# Conservation-safe: deliver the carried unit before switching.
-			_log_transition(State.FINISHING_DELIVERY)
-			state = State.FINISHING_DELIVERY
-			_timer = TRAVEL_GRACE
-			if _store != null:
-				_villager.move_to(_store.global_position)
-		else:
-			_start_travel(State.GOING_TO_BUILD, _den)
+	var food_drop := _food_drop()
+	var timber_drop := _timber_drop()
+	if _villager.carried_food > 0 and food_drop != null:
+		# Conservation-safe: deliver the carried food before switching duties.
+		_log_transition(State.FINISHING_DELIVERY)
+		state = State.FINISHING_DELIVERY
+		_timer = TRAVEL_GRACE
+		_villager.move_to(food_drop.global_position)
+	elif _villager.carried_timber > 0 and timber_drop != null:
+		_log_transition(State.FINISHING_TIMBER_DELIVERY)
+		state = State.FINISHING_TIMBER_DELIVERY
+		_timer = TRAVEL_GRACE
+		_villager.move_to(timber_drop.global_position)
 	else:
-		# Builder -> Forager: leave the site, begin the food loop directly.
-		if _source == null or _source.is_empty():
-			_enter_station(State.IDLE_NO_WORK, 0.0)
-		else:
-			_start_travel(State.GOING_TO_SOURCE, _source)
+		_route_to_job()
+
+## Send this villager to the start of its current job's loop.
+func _route_to_job() -> void:
+	match _villager.job:
+		Villager.Job.FORAGER:
+			if _source == null or _source.is_empty():
+				_enter_station(State.IDLE_NO_WORK, 0.0)
+			else:
+				_start_travel(State.GOING_TO_SOURCE, _source)
+		Villager.Job.WOODCUTTER:
+			if _grove == null or _grove.is_empty():
+				_enter_station(State.IDLE_NO_WORK, 0.0)
+			else:
+				_start_travel(State.GOING_TO_TIMBER, _grove)
+		Villager.Job.BUILDER:
+			_current_project = _active_project()
+			if _current_project == null:
+				_enter_station(State.IDLE_PROJECT_COMPLETE, 0.0)
+			else:
+				_start_travel(State.GOING_TO_BUILD, _current_project)
 
 func _physics_process(delta: float) -> void:
 	_timer -= delta
 	match state:
 		State.AT_HOME:
 			if _timer <= 0.0:
-				if _villager.job == Villager.Job.BUILDER:
-					_start_travel(State.GOING_TO_BUILD, _den)
-				elif _source == null or _source.is_empty():
-					_enter_station(State.IDLE_NO_WORK, 0.0)
-				else:
-					_start_travel(State.GOING_TO_SOURCE, _source)
+				_route_to_job()
 		State.GOING_TO_SOURCE:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_enter_station(State.GATHERING, gather_duration)
@@ -111,7 +177,7 @@ func _physics_process(delta: float) -> void:
 				_villager.set_working_motion(false)
 				if _source != null and _source.try_harvest():
 					_villager.set_carried_food(1)
-					_start_travel(State.GOING_TO_STORE, _store)
+					_start_travel(State.GOING_TO_STORE, _food_drop())
 				else:
 					_start_travel(State.GOING_TO_REST, _rest_point)
 		State.GOING_TO_STORE:
@@ -119,7 +185,26 @@ func _physics_process(delta: float) -> void:
 				_enter_station(State.DEPOSITING, deposit_duration)
 		State.DEPOSITING:
 			if _timer <= 0.0:
-				_deposit_carried()
+				_deposit_carried_food()
+				_start_travel(State.GOING_TO_REST, _rest_point)
+		State.GOING_TO_TIMBER:
+			if _timer <= 0.0 and _villager.is_travel_finished():
+				_enter_station(State.CHOPPING, chop_duration)
+				_villager.set_working_motion(true)
+		State.CHOPPING:
+			if _timer <= 0.0:
+				_villager.set_working_motion(false)
+				if _grove != null and _grove.try_harvest():
+					_villager.set_carried_timber(1)
+					_start_travel(State.GOING_TO_TIMBER_DROP, _timber_drop())
+				else:
+					_start_travel(State.GOING_TO_REST, _rest_point)
+		State.GOING_TO_TIMBER_DROP:
+			if _timer <= 0.0 and _villager.is_travel_finished():
+				_enter_station(State.DEPOSITING_TIMBER, deposit_duration)
+		State.DEPOSITING_TIMBER:
+			if _timer <= 0.0:
+				_deposit_carried_timber()
 				_start_travel(State.GOING_TO_REST, _rest_point)
 		State.GOING_TO_REST:
 			if _timer <= 0.0 and _villager.is_travel_finished():
@@ -131,33 +216,46 @@ func _physics_process(delta: float) -> void:
 			if _timer <= 0.0 and _villager.is_travel_finished():
 				_enter_station(State.AT_HOME, home_duration)
 		State.IDLE_NO_WORK:
-			# Terminal for foragers without work; reassignment exits it.
+			# Terminal until reassignment (or the job's source is refilled).
 			pass
 		State.FINISHING_DELIVERY:
 			if _timer <= 0.0 and _villager.is_travel_finished():
-				_deposit_carried()
-				_start_travel(State.GOING_TO_BUILD, _den)
-		State.GOING_TO_BUILD:
+				_deposit_carried_food()
+				_route_to_job()
+		State.FINISHING_TIMBER_DELIVERY:
 			if _timer <= 0.0 and _villager.is_travel_finished():
-				if _den != null and _den.is_complete():
-					_enter_station(State.IDLE_PROJECT_COMPLETE, 0.0)
+				_deposit_carried_timber()
+				_route_to_job()
+		State.GOING_TO_BUILD:
+			if _current_project == null or not is_instance_valid(_current_project):
+				_route_to_job()
+			elif _timer <= 0.0 and _villager.is_travel_finished():
+				if _current_project.is_complete():
+					_route_to_job()
 				else:
 					_enter_station(State.BUILDING, 0.0)
 					_villager.set_working_motion(true)
 		State.BUILDING:
-			if _den == null or _den.is_complete():
+			if _current_project == null or not is_instance_valid(_current_project) \
+					or _current_project.is_complete():
 				_villager.set_working_motion(false)
-				_enter_station(State.IDLE_PROJECT_COMPLETE, 0.0)
+				_route_to_job()
 			else:
-				_den.contribute(delta)
+				_current_project.contribute(delta)
 		State.IDLE_PROJECT_COMPLETE:
-			# Still assigned Builder; waiting for a future project.
-			pass
+			# Still a Builder; wake up when a new active project appears.
+			if _active_project() != null:
+				_route_to_job()
 
-func _deposit_carried() -> void:
+func _deposit_carried_food() -> void:
 	if _villager.carried_food > 0 and _resources != null:
 		_resources.add_food(_villager.carried_food)
 	_villager.set_carried_food(0)
+
+func _deposit_carried_timber() -> void:
+	if _villager.carried_timber > 0 and _resources != null:
+		_resources.add_timber(_villager.carried_timber)
+	_villager.set_carried_timber(0)
 
 func _start_travel(next_state: State, anchor: Node3D) -> void:
 	if anchor == null:

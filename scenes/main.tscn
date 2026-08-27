@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://scripts/settlement/settlement_resources.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/settlement/feeding_service.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/settlement/population_manager.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/settlement/build_mode_controller.gd" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/settlement/storehouse.tscn" id="13"]
 
 [sub_resource type="TorusMesh" id="mesh_marker"]
 material = ExtResource("6")
@@ -47,6 +49,12 @@ script = ExtResource("9")
 
 [node name="PopulationManager" type="Node" parent="." groups=["population_manager"]]
 script = ExtResource("11")
+
+[node name="BuildModeController" type="Node" parent="." groups=["build_mode"]]
+script = ExtResource("12")
+storehouse_scene = ExtResource("13")
+den_path = NodePath("../TestWorld/Anchors/DenSite")
+world_path = NodePath("../TestWorld")
 
 [node name="FeedingService" type="Node" parent="." groups=["feeding_service"]]
 script = ExtResource("10")

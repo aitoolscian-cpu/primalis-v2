@@ -4,6 +4,11 @@ extends Node3D
 
 @onready var _nav_region: NavigationRegion3D = $NavRegion
 
+## Re-carve the walkable surface (e.g. after a completed building gains
+## its obstacle collider).
+func rebake_navmesh() -> void:
+	_nav_region.bake_navigation_mesh(false)
+
 func _ready() -> void:
 	_nav_region.bake_navigation_mesh(false)
 	# Den gameplay effect: completed shelter slows Primalis hunger growth 10%.

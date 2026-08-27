@@ -1,0 +1,136 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/settlement/construction_project.gd" id="1"]
+[ext_resource type="Material" path="res://assets/materials/tree_trunk.tres" id="2"]
+[ext_resource type="Material" path="res://assets/materials/rock.tres" id="3"]
+[ext_resource type="Material" path="res://assets/materials/ground_path.tres" id="4"]
+
+[sub_resource type="BoxMesh" id="mesh_sh_slab"]
+material = ExtResource("4")
+size = Vector3(6.0, 0.14, 5.0)
+
+[sub_resource type="BoxMesh" id="mesh_sh_crate"]
+material = ExtResource("2")
+size = Vector3(0.8, 0.6, 0.8)
+
+[sub_resource type="BoxMesh" id="mesh_sh_post"]
+material = ExtResource("2")
+size = Vector3(0.35, 3.0, 0.35)
+
+[sub_resource type="BoxMesh" id="mesh_sh_beam"]
+material = ExtResource("2")
+size = Vector3(6.2, 0.3, 0.35)
+
+[sub_resource type="BoxMesh" id="mesh_sh_wall_side"]
+material = ExtResource("3")
+size = Vector3(0.3, 2.6, 4.8)
+
+[sub_resource type="BoxMesh" id="mesh_sh_wall_back"]
+material = ExtResource("3")
+size = Vector3(6.0, 2.6, 0.3)
+
+[sub_resource type="BoxMesh" id="mesh_sh_roof"]
+material = ExtResource("2")
+size = Vector3(6.6, 0.25, 5.6)
+
+[sub_resource type="BoxShape3D" id="shape_sh_obstacle"]
+size = Vector3(6.0, 3.0, 5.0)
+
+[node name="Storehouse" type="Node3D" groups=["storehouse"]]
+script = ExtResource("1")
+project_name = "STOREHOUSE"
+
+[node name="Foundation" type="Node3D" parent="."]
+
+[node name="Slab" type="MeshInstance3D" parent="Foundation"]
+position = Vector3(0, 0.07, 0)
+mesh = SubResource("mesh_sh_slab")
+
+[node name="Crate1" type="MeshInstance3D" parent="Foundation"]
+position = Vector3(2.2, 0.4, 1.6)
+rotation = Vector3(0, 0.4, 0)
+mesh = SubResource("mesh_sh_crate")
+
+[node name="Crate2" type="MeshInstance3D" parent="Foundation"]
+position = Vector3(-2.1, 0.4, -1.5)
+rotation = Vector3(0, -0.25, 0)
+mesh = SubResource("mesh_sh_crate")
+
+[node name="Frame" type="Node3D" parent="."]
+visible = false
+
+[node name="PostA" type="MeshInstance3D" parent="Frame"]
+position = Vector3(-2.8, 1.5, -2.3)
+mesh = SubResource("mesh_sh_post")
+
+[node name="PostB" type="MeshInstance3D" parent="Frame"]
+position = Vector3(2.8, 1.5, -2.3)
+mesh = SubResource("mesh_sh_post")
+
+[node name="PostC" type="MeshInstance3D" parent="Frame"]
+position = Vector3(-2.8, 1.5, 2.3)
+mesh = SubResource("mesh_sh_post")
+
+[node name="PostD" type="MeshInstance3D" parent="Frame"]
+position = Vector3(2.8, 1.5, 2.3)
+mesh = SubResource("mesh_sh_post")
+
+[node name="BeamF" type="MeshInstance3D" parent="Frame"]
+position = Vector3(0, 3.1, -2.3)
+mesh = SubResource("mesh_sh_beam")
+
+[node name="BeamB" type="MeshInstance3D" parent="Frame"]
+position = Vector3(0, 3.1, 2.3)
+mesh = SubResource("mesh_sh_beam")
+
+[node name="Walls" type="Node3D" parent="."]
+visible = false
+
+[node name="WallL" type="MeshInstance3D" parent="Walls"]
+position = Vector3(-2.85, 1.4, 0)
+mesh = SubResource("mesh_sh_wall_side")
+
+[node name="WallR" type="MeshInstance3D" parent="Walls"]
+position = Vector3(2.85, 1.4, 0)
+mesh = SubResource("mesh_sh_wall_side")
+
+[node name="WallB" type="MeshInstance3D" parent="Walls"]
+position = Vector3(0, 1.4, 2.35)
+mesh = SubResource("mesh_sh_wall_back")
+
+[node name="Roof" type="Node3D" parent="."]
+visible = false
+
+[node name="RoofSlab" type="MeshInstance3D" parent="Roof"]
+position = Vector3(0, 3.3, 0)
+rotation = Vector3(0.05, 0, 0)
+mesh = SubResource("mesh_sh_roof")
+
+[node name="Piles" type="Node3D" parent="."]
+
+[node name="Crate3" type="MeshInstance3D" parent="Piles"]
+position = Vector3(3.8, 0.35, -0.8)
+rotation = Vector3(0, 0.7, 0)
+mesh = SubResource("mesh_sh_crate")
+
+[node name="Crate4" type="MeshInstance3D" parent="Piles"]
+position = Vector3(3.85, 0.95, -0.75)
+rotation = Vector3(0, 0.3, 0)
+mesh = SubResource("mesh_sh_crate")
+
+[node name="Label" type="Label3D" parent="."]
+position = Vector3(0, 4.2, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.8)
+text = "STOREHOUSE 0%"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="Obstacle" type="StaticBody3D" parent="."]
+collision_layer = 1
+
+[node name="Shape" type="CollisionShape3D" parent="Obstacle"]
+position = Vector3(0, 1.5, 0)
+shape = SubResource("shape_sh_obstacle")
+disabled = true

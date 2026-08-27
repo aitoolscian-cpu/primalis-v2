@@ -5,7 +5,7 @@ extends CharacterBody3D
 ## Villagers are selectable and inspectable but NOT player-commandable.
 ## One reusable scene: per-instance identity, job, tunic color, offsets.
 
-enum Job { FORAGER, BUILDER }
+enum Job { FORAGER, BUILDER, WOODCUTTER }
 
 const PROXIMITY_LOOK_RANGE := 6.0
 
@@ -23,6 +23,8 @@ const PROXIMITY_LOOK_RANGE := 6.0
 @export var store_path: NodePath
 @export var rest_point_path: NodePath
 @export var den_path: NodePath
+@export var timber_source_path: NodePath
+@export var material_yard_path: NodePath
 
 @export_group("Movement")
 @export var max_speed := 2.2
@@ -33,6 +35,7 @@ const PROXIMITY_LOOK_RANGE := 6.0
 @export var gravity := 9.8
 
 var carried_food := 0
+var carried_timber := 0
 
 var _bob_time := 0.0
 var _working_motion := false
@@ -42,6 +45,7 @@ var _primalis: Node3D = null
 @onready var _selection: PrimalisSelection = $Selection
 @onready var _visual: Node3D = $Visual
 @onready var _carry_prop: MeshInstance3D = $Visual/CarryBasket
+@onready var _log_prop: MeshInstance3D = $Visual/CarryLog
 @onready var _ai: VillagerAI = $AI
 
 func _ready() -> void:
@@ -60,6 +64,16 @@ func move_to(target: Vector3) -> void:
 	var map: RID = get_world_3d().navigation_map
 	_agent.target_position = NavigationServer3D.map_get_closest_point(map, target + station_offset)
 
+## Target a spot on a ring around a build site rather than its centre, so
+## workers stand clear of the footprint the finished building will occupy.
+func move_to_perimeter(center: Vector3, radius: float) -> void:
+	var dir := Vector3(station_offset.x, 0.0, station_offset.z)
+	if dir.length() < 0.01:
+		dir = Vector3(1, 0, 0)
+	dir = dir.normalized()
+	var map: RID = get_world_3d().navigation_map
+	_agent.target_position = NavigationServer3D.map_get_closest_point(map, center + dir * radius)
+
 func is_travel_finished() -> bool:
 	return _agent.is_navigation_finished()
 
@@ -69,6 +83,10 @@ func set_working_motion(on: bool) -> void:
 func set_carried_food(amount: int) -> void:
 	carried_food = clampi(amount, 0, 1)
 	_carry_prop.visible = carried_food > 0
+
+func set_carried_timber(amount: int) -> void:
+	carried_timber = clampi(amount, 0, 1)
+	_log_prop.visible = carried_timber > 0
 
 ## Player job assignment. The job label switches immediately; behavior may
 ## pass through a conservation-safe transition (FINISHING_DELIVERY) first.

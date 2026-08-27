@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/villagers/villager_placeholder.tscn" id="9"]
 [ext_resource type="Script" path="res://scripts/settlement/food_source.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/settlement/construction_project.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/settlement/timber_source.gd" id="13"]
 [ext_resource type="PackedScene" path="res://assets/Meshy Assets/PrimalisDen1.glb" id="12"]
 
 [sub_resource type="NavigationMesh" id="navmesh"]
@@ -130,6 +131,28 @@ size = Vector3(3.8, 0.3, 1.4)
 [sub_resource type="BoxMesh" id="mesh_trough_fill"]
 material = ExtResource("7")
 size = Vector3(3.3, 0.25, 0.9)
+
+[sub_resource type="CylinderMesh" id="mesh_grove_trunk"]
+material = ExtResource("6")
+top_radius = 0.22
+bottom_radius = 0.3
+height = 2.4
+
+[sub_resource type="CylinderMesh" id="mesh_grove_log"]
+material = ExtResource("6")
+top_radius = 0.18
+bottom_radius = 0.18
+height = 2.0
+
+[sub_resource type="CylinderMesh" id="mesh_grove_stump"]
+material = ExtResource("6")
+top_radius = 0.32
+bottom_radius = 0.38
+height = 0.5
+
+[sub_resource type="BoxMesh" id="mesh_yard_pallet"]
+material = ExtResource("6")
+size = Vector3(2.2, 0.12, 1.8)
 
 [sub_resource type="ProceduralSkyMaterial" id="skymat"]
 sky_top_color = Color(0.33, 0.45, 0.62, 1)
@@ -654,6 +677,59 @@ font_size = 48
 outline_size = 16
 pixel_size = 0.02
 
+[node name="TimberGrove" type="Node3D" parent="Anchors" groups=["timber_source"]]
+position = Vector3(-24, 0, 0)
+script = ExtResource("13")
+
+[node name="Trunk1" type="MeshInstance3D" parent="Anchors/TimberGrove"]
+position = Vector3(1.0, 1.2, 0.4)
+rotation = Vector3(0, 0, 0.08)
+mesh = SubResource("mesh_grove_trunk")
+
+[node name="Trunk2" type="MeshInstance3D" parent="Anchors/TimberGrove"]
+position = Vector3(-0.6, 1.2, 1.1)
+rotation = Vector3(0.06, 0, -0.05)
+mesh = SubResource("mesh_grove_trunk")
+
+[node name="Stump" type="MeshInstance3D" parent="Anchors/TimberGrove"]
+position = Vector3(0.3, 0.25, -1.0)
+mesh = SubResource("mesh_grove_stump")
+
+[node name="Log1" type="MeshInstance3D" parent="Anchors/TimberGrove"]
+position = Vector3(-1.1, 0.2, -0.6)
+rotation = Vector3(0, 0.5, 1.5708)
+mesh = SubResource("mesh_grove_log")
+
+[node name="Label" type="Label3D" parent="Anchors/TimberGrove"]
+position = Vector3(0, 2.9, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "TIMBER GROVE"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
+[node name="MaterialYard" type="Node3D" parent="Anchors"]
+position = Vector3(-8, 0, -12)
+
+[node name="Pallet" type="MeshInstance3D" parent="Anchors/MaterialYard"]
+position = Vector3(0, 0.06, 0)
+mesh = SubResource("mesh_yard_pallet")
+
+[node name="YardLog1" type="MeshInstance3D" parent="Anchors/MaterialYard"]
+position = Vector3(0.3, 0.3, 0.2)
+rotation = Vector3(0, 0.2, 1.5708)
+mesh = SubResource("mesh_grove_log")
+
+[node name="Label" type="Label3D" parent="Anchors/MaterialYard"]
+position = Vector3(0, 2.3, 0)
+billboard = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "MATERIAL YARD"
+font_size = 48
+outline_size = 16
+pixel_size = 0.02
+
 [node name="Villager" parent="." instance=ExtResource("9")]
 position = Vector3(-12, 0.3, -16)
 station_offset = Vector3(0.6, 0, 0.4)
@@ -662,6 +738,8 @@ source_path = NodePath("../Anchors/FoodSource")
 store_path = NodePath("../Anchors/FoodStore")
 rest_point_path = NodePath("../Anchors/VillagerRestPoint")
 den_path = NodePath("../Anchors/DenSite")
+timber_source_path = NodePath("../Anchors/TimberGrove")
+material_yard_path = NodePath("../Anchors/MaterialYard")
 
 [node name="Villager2" parent="." instance=ExtResource("9")]
 position = Vector3(-10.5, 0.3, -15)
@@ -675,6 +753,8 @@ source_path = NodePath("../Anchors/FoodSource")
 store_path = NodePath("../Anchors/FoodStore")
 rest_point_path = NodePath("../Anchors/VillagerRestPoint")
 den_path = NodePath("../Anchors/DenSite")
+timber_source_path = NodePath("../Anchors/TimberGrove")
+material_yard_path = NodePath("../Anchors/MaterialYard")
 
 [node name="Villager3" parent="." instance=ExtResource("9")]
 position = Vector3(-13.5, 0.3, -15.2)
@@ -688,6 +768,8 @@ source_path = NodePath("../Anchors/FoodSource")
 store_path = NodePath("../Anchors/FoodStore")
 rest_point_path = NodePath("../Anchors/VillagerRestPoint")
 den_path = NodePath("../Anchors/DenSite")
+timber_source_path = NodePath("../Anchors/TimberGrove")
+material_yard_path = NodePath("../Anchors/MaterialYard")
 
 [node name="Villager4" parent="." instance=ExtResource("9")]
 position = Vector3(-11, 0.3, -17.2)
@@ -701,3 +783,5 @@ source_path = NodePath("../Anchors/FoodSource")
 store_path = NodePath("../Anchors/FoodStore")
 rest_point_path = NodePath("../Anchors/VillagerRestPoint")
 den_path = NodePath("../Anchors/DenSite")
+timber_source_path = NodePath("../Anchors/TimberGrove")
+material_yard_path = NodePath("../Anchors/MaterialYard")

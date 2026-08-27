@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/debug_hud.gd" id="1"]
 
-[node name="DebugHUD" type="CanvasLayer"]
+[node name="DebugHUD" type="CanvasLayer" groups=["debug_hud"]]
 script = ExtResource("1")
 
 [node name="Panel" type="PanelContainer" parent="."]
@@ -33,7 +33,17 @@ visible = false
 theme_override_font_sizes/font_size = 14
 text = "ASSIGN FORAGER"
 
+[node name="AssignWoodcutterButton" type="Button" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "ASSIGN WOODCUTTER"
+
 [node name="AssignBuilderButton" type="Button" parent="Panel/Margin/VBox"]
 visible = false
 theme_override_font_sizes/font_size = 14
 text = "ASSIGN BUILDER"
+
+[node name="PlaceStorehouseButton" type="Button" parent="Panel/Margin/VBox"]
+visible = false
+theme_override_font_sizes/font_size = 14
+text = "PLACE STOREHOUSE - 8 TIMBER"
